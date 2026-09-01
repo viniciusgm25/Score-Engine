@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/score_engine_db
+    username: score_user
+    password: score_password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # URL fictícia para ambiente de desenvolvimento.
+          # Em produção, apontará para o Identity Provider oficial do banco (ex: Keycloak).
+          issuer-uri: http://localhost:8081/auth/realms/score-realm
+  # O logging fica fora do "spring:"
+  logging:
+    pattern:
+      console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [%X{correlationId}] %msg%n"
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: score-engine-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "br.com.scoreengine.application.dto"

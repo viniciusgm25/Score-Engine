@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Score Engine - Painel de Testes</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Score Engine - Teste de Clientes</h1>
+
+        <div class="form-group">
+            <label for="tipoPessoa">Tipo de Pessoa:</label>
+            <select id="tipoPessoa" onchange="alternarCampos()">
+                <option value="PF">Pessoa Física (PF)</option>
+                <option value="PJ">Pessoa Jurídica (PJ)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="clienteId">ID do Cliente:</label>
+            <input type="text" id="clienteId" value="CLI-001">
+        </div>
+
+        <div id="camposPF">
+            <div class="form-group"><label>Renda Mensal:</label><input type="number" id="renda" value="4500.00"></div>
+            <div class="form-group"><label>Endividamento:</label><input type="number" id="endividamento"
+                    value="1200.00"></div>
+            <div class="form-group"><label>Dias de Atraso:</label><input type="number" id="atrasos" value="0"></div>
+            <div class="form-group"><label>Tempo de Relacionamento (meses):</label><input type="number"
+                    id="tempoRelacionamento" value="24"></div>
+        </div>
+
+        <div id="camposPJ" style="display:none;">
+            <div class="form-group"><label>Faturamento Mensal:</label><input type="number" id="faturamento"
+                    value="75000.00"></div>
+            <div class="form-group"><label>Endividamento PJ:</label><input type="number" id="endividamentoPj"
+                    value="15000.00"></div>
+            <div class="form-group"><label>Tempo de Atividade (meses):</label><input type="number" id="tempoAtividade"
+                    value="36"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="token">Bearer Token (Opcional se JWT estiver ativo):</label>
+            <input type="text" id="token" placeholder="Cole seu token JWT aqui se necessário">
+        </div>
+
+        <button onclick="calcularScore()">Calcular Score</button>
+
+        <div class="output-container">
+            <div>
+                <h3>Request JSON</h3>
+                <pre id="jsonRequest"></pre>
+            </div>
+            <div>
+                <h3>Response JSON (<span id="httpStatus">-</span>)</h3>
+                <pre id="jsonResponse"></pre>
+            </div>
+        </div>
+    </div>
+    <script src="js/score.js"></script>
+</body>
+
+</html>
