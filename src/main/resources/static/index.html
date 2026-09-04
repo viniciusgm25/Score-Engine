@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Score Engine - Painel de Testes</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Score Engine - Teste de Clientes</h1>
+
+        <div class="form-group">
+            <label for="tipoPessoa">Tipo de Pessoa:</label>
+            <select id="tipoPessoa" onchange="alternarCampos()">
+                <option value="PF">Pessoa Física (PF)</option>
+                <option value="PJ">Pessoa Jurídica (PJ)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="clienteId">ID do Cliente:</label>
+            <input type="text" id="clienteId" value="API-101">
+        </div>
+
+        <!-- CAMPOS PESSOA FÍSICA -->
+        <div id="camposPF">
+            <div class="form-group"><label>Renda Mensal Líquida:</label><input type="number" id="rendaMensalLiquida"
+                    value="8500.00"></div>
+            <div class="form-group"><label>Quantidade de Atrasos:</label><input type="number" id="quantidadeAtrasos"
+                    value="1"></div>
+            <div class="form-group"><label>Endividamento:</label><input type="number" id="endividamento" value="0.25">
+            </div>
+            <div class="form-group"><label>Tempo de Relacionamento (meses):</label><input type="number"
+                    id="tempoRelacionamentoMesesPF" value="48"></div>
+            <div class="form-group"><label>Idade:</label><input type="number" id="idade" value="34"></div>
+            <div class="form-group">
+                <label for="estadoCivil">Estado Civil:</label>
+                <select id="estadoCivil">
+                    <option value="SOLTEIRO">Solteiro</option>
+                    <option value="CASADO" selected>Casado</option>
+                    <option value="DIVORCIADO">Divorciado</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Tempo Último Emprego (meses):</label><input type="number"
+                    id="tempoUltimoEmpregoMeses" value="36"></div>
+            <div class="form-group">
+                <label for="possuiAvalista">Possui Avalista:</label>
+                <select id="possuiAvalista">
+                    <option value="false">Não</option>
+                    <option value="true">Sim</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- CAMPOS PESSOA JURÍDICA -->
+        <div id="camposPJ" style="display:none;">
+            <div class="form-group"><label>Faturamento Mensal:</label><input type="number" id="faturamentoMensal"
+                    value="150000.00"></div>
+            <div class="form-group"><label>Tempo de Atividade (meses):</label><input type="number"
+                    id="tempoAtividadeMeses" value="120"></div>
+            <div class="form-group"><label>Endividamento PJ:</label><input type="number" id="endividamentoPj"
+                    value="0.40"></div>
+            <div class="form-group"><label>Lucro Médio Mensal:</label><input type="number" id="lucroMedioMensal"
+                    value="25000.00"></div>
+            <div class="form-group"><label>Liquidez:</label><input type="number" id="liquidez" value="1.8"></div>
+            <div class="form-group"><label>Operações de Crédito Ativas:</label><input type="number"
+                    id="operacoesCreditoAtivas" value="2"></div>
+            <div class="form-group"><label>Tempo Relacionamento (meses):</label><input type="number"
+                    id="tempoRelacionamentoMesesPJ" value="72"></div>
+            <div class="form-group"><label>Setor de Atividade:</label><input type="text" id="setorAtividade"
+                    value="TECNOLOGIA"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="token">Bearer Token (Opcional):</label>
+            <input type="text" id="token" placeholder="Cole seu token JWT aqui se necessário">
+        </div>
+
+        <button onclick="calcularScore()">Calcular Score</button>
+
+        <div class="output-container">
+            <div>
+                <h3>Request JSON</h3>
+                <pre id="jsonRequest"></pre>
+            </div>
+            <div>
+                <h3>Response JSON (<span id="httpStatus">-</span>)</h3>
+                <pre id="jsonResponse"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function alternarCampos() {
+            const tipo = document.getElementById("tipoPessoa").value;
+            if (tipo === "PF") {
+                document.getElementById("camposPF").style.display = "block";
+                document.getElementById("camposPJ").style.display = "none";
+            } else {
+                document.getElementById("camposPF").style.display = "none";
+                document.getElementById("camposPJ").style.display = "block";
+            }
+        }
+
+        async function calcularScore() {
+            const tipoPessoa = document.getElementById("tipoPessoa").value;
+            const clienteId = document.getElementById("clienteId").value;
+            const token = document.getElementById("token").value;
+
+            let payload = { clienteId, tipoPessoa };
+
+            if (tipoPessoa === "PF") {
+                payload.rendaMensalLiquida = parseFloat(document.getElementById("rendaMensalLiquida").value);
+                payload.quantidadeAtrasos = parseInt(document.getElementById("quantidadeAtrasos").value);
+                payload.endividamento = parseFloat(document.getElementById("endividamento").value);
+                payload.tempoRelacionamentoMeses = parseInt(document.getElementById("tempoRelacionamentoMesesPF").value);
+                payload.idade = parseInt(document.getElementById("idade").value);
+                payload.estadoCivil = document.getElementById("estadoCivil").value;
+                payload.tempoUltimoEmpregoMeses = parseInt(document.getElementById("tempoUltimoEmpregoMeses").value);
+                payload.possuiAvalista = document.getElementById("possuiAvalista").value === "true";
+            } else {
+                payload.faturamentoMensal = parseFloat(document.getElementById("faturamentoMensal").value);
+                payload.tempoAtividadeMeses = parseInt(document.getElementById("tempoAtividadeMeses").value);
+                payload.endividamento = parseFloat(document.getElementById("endividamentoPj").value);
+                payload.lucroMedioMensal = parseFloat(document.getElementById("lucroMedioMensal").value);
+                payload.liquidez = parseFloat(document.getElementById("liquidez").value);
+                payload.operacoesCreditoAtivas = parseInt(document.getElementById("operacoesCreditoAtivas").value);
+                payload.tempoRelacionamentoMeses = parseInt(document.getElementById("tempoRelacionamentoMesesPJ").value);
+                payload.setorAtividade = document.getElementById("setorAtividade").value;
+            }
+
+            document.getElementById("jsonRequest").textContent = JSON.stringify(payload, null, 4);
+
+            const headers = { "Content-Type": "application/json" };
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
+
+            try {
+                const response = await fetch("http://localhost:8080/api/v1/score", {
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify(payload)
+                });
+
+                document.getElementById("httpStatus").textContent = response.status + " " + response.statusText;
+
+                // Lê como texto primeiro para evitar o erro de JSON vazio
+                const responseText = await response.text();
+
+                if (responseText) {
+                    const data = JSON.parse(responseText);
+                    document.getElementById("jsonResponse").textContent = JSON.stringify(data, null, 4);
+                } else {
+                    document.getElementById("jsonResponse").textContent = JSON.stringify({
+                        aviso: "A resposta do servidor veio vazia (Corpo vazio)."
+                    }, null, 4);
+                }
+
+            } catch (error) {
+                document.getElementById("httpStatus").textContent = "Erro";
+                document.getElementById("jsonResponse").textContent = error.toString();
+            }
+        }
+    </script>
+</body>
+
+</html>

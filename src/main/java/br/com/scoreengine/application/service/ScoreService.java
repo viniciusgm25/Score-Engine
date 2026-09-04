@@ -26,7 +26,7 @@ public class ScoreService {
     }
 
     public ScoreResultado processarScore(ClientePerfil perfil, String correlationId) {
-        log.info("Iniciando cálculo de score para o cliente: {} - Tipo: {}", perfil.clienteId(), perfil.tipoPessoa());
+        log.info("2. Iniciando cálculo de score para o cliente ID: {}", perfil.clienteId());
         long start = System.currentTimeMillis();
 
         validator.validar(perfil);
@@ -44,7 +44,7 @@ public class ScoreService {
 
         long tempoProcessamentoMs = System.currentTimeMillis() - start;
 
-        log.info("Score calculado com sucesso: {} pontos. Registrando trilha de auditoria...", resultado.scoreFinal());
+        log.info("2. Cálculo concluído com sucesso. Pontuação gerada: {}", resultado.scoreFinal());
         auditPort.registrar(resultado, correlationId, tempoProcessamentoMs);
 
         log.info("Processamento finalizado em {} ms", tempoProcessamentoMs);

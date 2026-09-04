@@ -8,7 +8,6 @@ function calcularScore() {
     const tipoPessoa = document.getElementById('tipoPessoa').value;
     const clienteId = document.getElementById('clienteId').value;
 
-    // Declaração do payload realizada ANTES de qualquer uso
     let payload = { clienteId, tipoPessoa };
     console.log("Iniciando cálculo...", payload);
 
@@ -31,7 +30,7 @@ function calcularScore() {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = 'Bearer ' + token;
 
-    fetch('/api/v1/score', {
+    fetch('http://localhost:8080/api/v1/score', {
         method: 'POST',
         headers: headers,
         body: JSON.stringify(payload)
@@ -49,7 +48,6 @@ function calcularScore() {
         .catch(err => {
             document.getElementById('httpStatus').innerText = 'ERROR';
             document.getElementById('jsonResponse').innerText = err.message;
-            console.log(err);
-            console.log(response);
+            console.error("Erro na requisição:", err);
         });
 }

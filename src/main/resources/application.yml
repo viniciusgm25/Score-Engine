@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/score_engine_db
+    username: score_user
+    password: score_password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/auth/realms/score-realm
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: score-engine-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "br.com.scoreengine.application.dto"
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    br.com.scoreengine: DEBUG
+
+app:
+  security:
+    jwt:
+      enabled: false # Altere para 'true' quando quiser obrigar o uso de token localmente
