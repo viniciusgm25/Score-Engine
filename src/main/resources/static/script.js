@@ -65,27 +65,47 @@ document.getElementById('scoreForm').addEventListener('submit', async function (
 
         if (response.ok) {
             document.getElementById('cardResultado').style.display = 'block';
+
+            // Campos alinhados ao UnifiedScoreResponseDTO real:
+            // clienteId, tipoPessoa, scoreFinal, faixaRisco, probabilidadeDefault,
+            // modelo{codigo,versao}, calculatedAt, origem, componentes[], fatoresImpacto[]
             document.getElementById('outCliente').textContent = data.clienteId;
             document.getElementById('outTipo').textContent = data.tipoPessoa;
-            document.getElementById('outScore').textContent = data.score;
-            document.getElementById('outRating').textContent = `${data.classificacaoRisco} (${data.ratingDescricao})`;
+            document.getElementById('outScore').textContent = data.scoreFinal;
+            document.getElementById('outRating').textContent = data.faixaRisco;
 
             const elemOrigem = document.getElementById('outOrigem');
             elemOrigem.textContent = data.origem;
             elemOrigem.className = `badge-origem origem-${data.origem}`;
 
             document.getElementById('outModelo').textContent = `${data.modelo.codigo} (${data.modelo.versao})`;
-            document.getElementById('outData').textContent = new Date(data.calculadoEm).toLocaleString();
+            document.getElementById('outData').textContent = new Date(data.calculatedAt).toLocaleString();
 
             const compContainer = document.getElementById('outComponentes');
             compContainer.innerHTML = '';
             if (data.componentes) {
                 data.componentes.forEach(c => {
+                    // O DTO não traz um campo de "impacto" por componente,
+                    // então a classe/rótulo de impacto foi removida daqui.
                     const item = document.createElement('div');
-                    item.className = `component-item impact-${c.impacto}`;
-                    item.innerHTML = `<strong>${c.nome}</strong>: ${c.pontuacao} pts (Peso: ${c.peso}) — <em>Impacto ${c.impacto}</em><br/><span class="hint">${c.motivo}</span>`;
+                    item.className = 'component-item';
+                    item.innerHTML = `<strong>${c.nome}</strong>: ${c.pontuacao} / ${c.pontuacaoMaxima} pts (Peso: ${c.pesoPonderado})<br/><span class="hint">${c.motivo}</span>`;
                     compContainer.appendChild(item);
                 });
+            }
+
+            if (data.fatoresImpacto && data.fatoresImpacto.length) {
+                const fatoresTitle = document.createElement('h4');
+                fatoresTitle.textContent = 'Fatores de Impacto';
+                compContainer.appendChild(fatoresTitle);
+
+                const fatoresList = document.createElement('ul');
+                data.fatoresImpacto.forEach(f => {
+                    const li = document.createElement('li');
+                    li.textContent = f;
+                    fatoresList.appendChild(li);
+                });
+                compContainer.appendChild(fatoresList);
             }
         } else {
             document.getElementById('cardResultado').style.display = 'none';
