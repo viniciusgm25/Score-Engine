@@ -1,68 +1,96 @@
 package br.com.scoreengine.domain.validator;
 
-import br.com.scoreengine.domain.model.ClientePerfil;
-import br.com.scoreengine.domain.model.PessoaFisicaPerfil;
-import br.com.scoreengine.domain.model.PessoaJuridicaPerfil;
 import br.com.scoreengine.domain.exception.PerfilInvalidoException;
-import java.math.BigDecimal;
+import br.com.scoreengine.domain.model.pf.CustomerPFProfile;
+import br.com.scoreengine.domain.model.pj.CustomerPJProfile;
 
+import java.math.BigDecimal;
+import java.util.Objects;
+
+/**
+ * Validador de Domínio para Perfis Cadastrais e Financeiros de Risco (PF e PJ).
+ * Assegura integridade documental, saneamento de variáveis financeiras em
+ * BigDecimal
+ * e conformidade com os normativos prudenciais do Bacen (CMN 4.557/2017) e CDC.
+ */
 public class PerfilValidator {
 
-    public void validar(ClientePerfil perfil) {
-        if (perfil == null) {
-            throw new PerfilInvalidoException("O perfil do cliente não pode ser nulo.");
-        }
-        if (perfil.clienteId() == null || perfil.clienteId().isBlank()) {
-            throw new PerfilInvalidoException("O identificador do cliente é obrigatório.");
+    /**
+     * Validação prudencial estrita para proponentes Pessoa Física.
+     */
+    public void validarPF(CustomerPFProfile pf) {
+        if (pf == null) {
+            throw new PerfilInvalidoException("O perfil do cliente Pessoa Física não pode ser nulo.");
         }
 
-        // Utilização de Pattern Matching (Java 21) para roteamento limpo
-        switch (perfil) {
-            case PessoaFisicaPerfil pf -> validarPessoaFisica(pf);
-            case PessoaJuridicaPerfil pj -> validarPessoaJuridica(pj);
-            default -> throw new PerfilInvalidoException("Tipo de perfil não suportado.");
+        validarDocumento(pf.getCpf(), 11, "CPF");
+
+        validarMonetario(pf.getRendaMensal(), "Renda mensal");
+        validarMonetario(pf.getDividaTotal(), "Dívida total");
+        validarMonetario(pf.getLimiteRotativoUtilizado(), "Limite rotativo utilizado");
+        validarMonetario(pf.getLimiteRotativoTotal(), "Limite rotativo total");
+
+        if (pf.getIdade() < 18) {
+            throw new PerfilInvalidoException(
+                    "O proponente Pessoa Física deve possuir idade igual ou superior a 18 anos.");
+        }
+
+        if (pf.getNumeroDependentes() < 0) {
+            throw new PerfilInvalidoException("O número de dependentes não pode ser negativo.");
+        }
+
+        if (pf.getDiasAtrasoUltimos12Meses() < 0) {
+            throw new PerfilInvalidoException("A quantidade de dias de atraso não pode ser negativa.");
+        }
+
+        if (pf.getMesesNoEmpregoAtual() < 0 || pf.getMesesRelacionamentoBanco() < 0) {
+            throw new PerfilInvalidoException("Os prazos temporais em meses não podem ser negativos.");
         }
     }
 
-    private void validarPessoaFisica(PessoaFisicaPerfil pf) {
-        validarMonetario(pf.rendaMensalLiquida(), "Renda mensal líquida");
-        validarPercentual(pf.endividamento(), "Endividamento");
+    /**
+     * Validação prudencial estrita para proponentes Pessoa Jurídica.
+     */
+    public void validarPJ(CustomerPJProfile pj) {
+        if (pj == null) {
+            throw new PerfilInvalidoException("O perfil do cliente Pessoa Jurídica não pode ser nulo.");
+        }
 
-        if (pf.idade() < 18) {
-            throw new PerfilInvalidoException("Cliente Pessoa Física deve ter 18 anos ou mais.");
+        validarDocumento(pj.getCnpj(), 14, "CNPJ");
+
+        validarMonetario(pj.getFaturamentoMensal(), "Faturamento mensal");
+        validarMonetario(pj.getDespesasOperacionaisMensais(), "Despesas operacionais mensais");
+        validarMonetario(pj.getPassivoTotalBancario(), "Passivo total bancário");
+        validarMonetario(pj.getFaturamentoBrutoAnual(), "Faturamento bruto anual");
+
+        if (pj.getDiasAtrasoUltimos12Meses() < 0) {
+            throw new PerfilInvalidoException(
+                    "A quantidade de dias de atraso comercial/bancário não pode ser negativa.");
         }
-        if (pf.quantidadeAtrasos() < 0) {
-            throw new PerfilInvalidoException("A quantidade de atrasos não pode ser negativa.");
+
+        if (pj.getMesesConstituicao() < 0) {
+            throw new PerfilInvalidoException("O tempo de constituição da empresa em meses não pode ser negativo.");
         }
-        if (pf.tempoRelacionamentoMeses() < 0 || pf.tempoUltimoEmpregoMeses() < 0) {
-            throw new PerfilInvalidoException("Prazos em meses não podem ser negativos.");
+
+        if (pj.getRazaoSocial() == null || pj.getRazaoSocial().isBlank()) {
+            throw new PerfilInvalidoException("A razão social da empresa é de preenchimento obrigatório.");
         }
     }
 
-    private void validarPessoaJuridica(PessoaJuridicaPerfil pj) {
-        validarMonetario(pj.faturamentoMensal(), "Faturamento mensal");
-        validarMonetario(pj.lucroMedioMensal(), "Lucro médio mensal");
-        validarMonetario(pj.liquidez(), "Liquidez");
-        validarPercentual(pj.endividamento(), "Endividamento");
-
-        if (pj.tempoAtividadeMeses() < 0) {
-            throw new PerfilInvalidoException("O tempo de atividade não pode ser negativo.");
+    private void validarDocumento(String documento, int tamanhoEsperado, String tipo) {
+        if (documento == null || documento.isBlank()) {
+            throw new PerfilInvalidoException("O " + tipo + " do cliente é obrigatório.");
         }
-        if (pj.operacoesCreditoAtivas() < 0) {
-            throw new PerfilInvalidoException("A quantidade de operações de crédito ativas não pode ser negativa.");
+        String digitos = documento.replaceAll("\\D", "");
+        if (digitos.length() != tamanhoEsperado) {
+            throw new PerfilInvalidoException("O " + tipo + " informado [" + documento + "] é inválido. Esperados "
+                    + tamanhoEsperado + " dígitos numéricos.");
         }
     }
 
     private void validarMonetario(BigDecimal valor, String campo) {
         if (valor == null || valor.compareTo(BigDecimal.ZERO) < 0) {
-            throw new PerfilInvalidoException(campo + " não pode ser nula ou negativa.");
-        }
-    }
-
-    private void validarPercentual(BigDecimal percentual, String campo) {
-        if (percentual == null || percentual.compareTo(BigDecimal.ZERO) < 0
-                || percentual.compareTo(BigDecimal.ONE) > 0) {
-            throw new PerfilInvalidoException(campo + " deve ser um percentual válido entre 0.0 e 1.0.");
+            throw new PerfilInvalidoException(campo + " não pode ser nulo ou negativo.");
         }
     }
 }

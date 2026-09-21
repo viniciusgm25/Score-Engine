@@ -3,26 +3,22 @@ package br.com.scoreengine.infrastructure.config;
 import br.com.scoreengine.application.dto.ClientePerfilMapper;
 import br.com.scoreengine.application.port.out.ScoreAuditPort;
 import br.com.scoreengine.application.service.ScoreService;
-import br.com.scoreengine.domain.calculator.PessoaFisicaScoreCalculator;
-import br.com.scoreengine.domain.calculator.PessoaJuridicaScoreCalculator;
-import br.com.scoreengine.domain.calculator.ScoreCalculator;
-import br.com.scoreengine.domain.rules.ModeloScore;
-import br.com.scoreengine.domain.rules.ModeloScoreV1;
-import br.com.scoreengine.domain.rules.PessoaFisicaRuleConfig;
-import br.com.scoreengine.domain.rules.PessoaJuridicaRuleConfig;
+import br.com.scoreengine.domain.calculator.ScoreCalculatorStrategy;
 import br.com.scoreengine.domain.validator.PerfilValidator;
 import br.com.scoreengine.infrastructure.persistence.mapper.AuditRepositoryAdapter;
 import br.com.scoreengine.infrastructure.persistence.repository.ScoreAuditJpaRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
 /**
- * [RETOMADA DOS TRABALHOS DAQUI]
- * Configuration Root: Ensina o ecossistema Spring a instanciar nossas classes
- * de domínio puras.
- * Consolidado com a injeção correta do ScoreAuditJpaRepository para a Fase 12.
+ * Raiz de Configuração da Arquitetura Hexagonal do Score Engine.
+ * Responsável pela injeção de dependências das portas de saída de auditoria,
+ * mappers de isolamento de contratos e orquestrador de aplicação
+ * (ScoreService),
+ * assegurando conformidade com as diretrizes prudenciais do Bacen e Basileia.
  */
 @Configuration
 public class ScoreConfig {
@@ -33,45 +29,29 @@ public class ScoreConfig {
     }
 
     @Bean
-    public ModeloScore modeloScore() {
-        return new ModeloScoreV1();
-    }
-
-    @Bean
-    public PessoaFisicaRuleConfig pessoaFisicaRuleConfig() {
-        return new PessoaFisicaRuleConfig();
-    }
-
-    @Bean
-    public PessoaJuridicaRuleConfig pessoaJuridicaRuleConfig() {
-        return new PessoaJuridicaRuleConfig();
-    }
-
-    @Bean
-    public ScoreCalculator pessoaFisicaScoreCalculator(ModeloScore modeloScore, PessoaFisicaRuleConfig config) {
-        return new PessoaFisicaScoreCalculator(modeloScore, config);
-    }
-
-    @Bean
-    public ScoreCalculator pessoaJuridicaScoreCalculator(ModeloScore modeloScore, PessoaJuridicaRuleConfig config) {
-        return new PessoaJuridicaScoreCalculator(modeloScore, config);
-    }
-
-    // Adaptador de Infraestrutura implementando a Porta de Saída (Outbound Port)
-    @Bean
-    public ScoreAuditPort scoreAuditPort(ScoreAuditJpaRepository repository) {
-        return new AuditRepositoryAdapter(repository);
-    }
-
-    // Serviço de Aplicação orquestrando o Domínio e a Auditoria
-    @Bean
-    public ScoreService scoreService(PerfilValidator validator, List<ScoreCalculator> calculators,
-            ScoreAuditPort auditPort) {
-        return new ScoreService(validator, calculators, auditPort);
-    }
-
-    @Bean
     public ClientePerfilMapper clientePerfilMapper() {
         return new ClientePerfilMapper();
+    }
+
+    /**
+     * Adaptador de persistência conectando o repositório JPA à porta de saída
+     * de auditoria mandatória (trilha de explicabilidade regulatória e telemetria).
+     */
+    @Bean
+    public ScoreAuditPort scoreAuditPort(ScoreAuditJpaRepository repository, ObjectMapper objectMapper) {
+        return new AuditRepositoryAdapter(repository, objectMapper);
+    }
+
+    /**
+     * Orquestrador de aplicação que recebe as estratégias de cálculo registradas
+     * (PFScoreCalculatorStrategy e PJScoreCalculatorStrategy), validador cadastral
+     * e a porta de auditoria.
+     */
+    @Bean
+    public ScoreService scoreService(
+            PerfilValidator validator,
+            List<ScoreCalculatorStrategy<?>> calculatorStrategies,
+            ScoreAuditPort auditPort) {
+        return new ScoreService(validator, calculatorStrategies, auditPort);
     }
 }

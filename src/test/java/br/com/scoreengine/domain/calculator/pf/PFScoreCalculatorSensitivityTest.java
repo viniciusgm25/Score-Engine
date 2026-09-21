@@ -1,6 +1,5 @@
 package br.com.scoreengine.domain.calculator.pf;
 
-import br.com.scoreengine.domain.model.common.ImpactType;
 import br.com.scoreengine.domain.model.common.ScoreResult;
 import br.com.scoreengine.domain.model.pf.CustomerPFProfile;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +36,7 @@ class PFScoreCalculatorSensitivityTest {
     }
 
     @Test
-    @DisplayName("Sensibilidade 1: Histórico de atraso reduz o score e gera componente com impacto negativo")
+    @DisplayName("Sensibilidade 1: Histórico de atraso reduz o score final e penaliza o componente explicável")
     void testSensibilidadeAtraso() {
         CustomerPFProfile pontual = criarPerfilPadrao();
         CustomerPFProfile inadimplente = criarPerfilPadrao();
@@ -47,9 +46,13 @@ class PFScoreCalculatorSensitivityTest {
         ScoreResult resInadimplente = strategy.calculate(inadimplente);
 
         assertTrue(resPontual.scoreFinal() > resInadimplente.scoreFinal(),
-                "Cliente inadimplente deve possuir score final inferior ao pontual.");
-        assertEquals(ImpactType.POSITIVO, resPontual.componentes().get(0).impacto());
-        assertEquals(ImpactType.NEGATIVO, resInadimplente.componentes().get(0).impacto());
+                "Cliente inadimplente deve possuir score final inferior ao cliente pontual.");
+        assertTrue(resInadimplente.probabilidadeDefault().compareTo(resPontual.probabilidadeDefault()) > 0,
+                "A probabilidade de default (PD) do cliente inadimplente deve ser superior.");
+
+        assertEquals(0, resPontual.componentes().get(0).pontuacao().compareTo(new BigDecimal("850.00")));
+        assertEquals(0, resInadimplente.componentes().get(0).pontuacao().compareTo(new BigDecimal("150.00")));
+        assertTrue(resInadimplente.componentes().get(0).motivo().contains("Inadimplência severa"));
     }
 
     @Test
@@ -64,7 +67,8 @@ class PFScoreCalculatorSensitivityTest {
 
         assertTrue(resSem.scoreFinal() > resCom.scoreFinal(),
                 "Renda residual absorvida por dependentes deve mitigar a pontuação da capacidade financeira.");
-        assertEquals(200, resCom.componentes().get(1).pontuacao());
+        assertEquals(0, resCom.componentes().get(1).pontuacao().compareTo(new BigDecimal("200.00")));
+        assertTrue(resCom.componentes().get(1).motivo().contains("subsistência de dependentes"));
     }
 
     @Test
@@ -72,14 +76,15 @@ class PFScoreCalculatorSensitivityTest {
     void testSensibilidadeUsoRotativo() {
         CustomerPFProfile usoModerado = criarPerfilPadrao();
         CustomerPFProfile usoCritico = criarPerfilPadrao();
-        usoCritico.setLimiteRotativoUtilizado(new BigDecimal("2900.00")); // >90%
+        usoCritico.setLimiteRotativoUtilizado(new BigDecimal("2900.00")); // > 90% do limite total
 
         ScoreResult resMod = strategy.calculate(usoModerado);
         ScoreResult resCrit = strategy.calculate(usoCritico);
 
-        assertTrue(resMod.scoreFinal() > resCrit.scoreFinal());
-        assertEquals(850, resMod.componentes().get(2).pontuacao());
-        assertEquals(250, resCrit.componentes().get(2).pontuacao());
+        assertTrue(resMod.scoreFinal() > resCrit.scoreFinal(),
+                "Cliente com alta taxa de uso do rotativo deve receber pontuação global menor.");
+        assertEquals(0, resMod.componentes().get(2).pontuacao().compareTo(new BigDecimal("850.00")));
+        assertEquals(0, resCrit.componentes().get(2).pontuacao().compareTo(new BigDecimal("250.00")));
     }
 
     @Test

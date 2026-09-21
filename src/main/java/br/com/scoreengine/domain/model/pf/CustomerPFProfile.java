@@ -1,6 +1,10 @@
 package br.com.scoreengine.domain.model.pf;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 
 public class CustomerPFProfile {
 
@@ -19,6 +23,30 @@ public class CustomerPFProfile {
     public CustomerPFProfile() {
     }
 
+    public String generateFingerprint() {
+        String raw = String.join("|",
+                cpf != null ? cpf : "",
+                rendaMensal != null ? rendaMensal.toPlainString() : "0",
+                dividaTotal != null ? dividaTotal.toPlainString() : "0",
+                String.valueOf(idade),
+                estadoCivil != null ? estadoCivil : "",
+                String.valueOf(numeroDependentes),
+                String.valueOf(diasAtrasoUltimos12Meses),
+                limiteRotativoUtilizado != null ? limiteRotativoUtilizado.toPlainString() : "0",
+                limiteRotativoTotal != null ? limiteRotativoTotal.toPlainString() : "0",
+                String.valueOf(mesesNoEmpregoAtual),
+                String.valueOf(mesesRelacionamentoBanco));
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("Algoritmo SHA-256 indisponível no ambiente runtime", e);
+        }
+    }
+
+    // Getters e Setters mantidos...
     public String getCpf() {
         return cpf;
     }
