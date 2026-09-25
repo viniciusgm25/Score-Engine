@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Score Engine — Sistema de Avaliação de Risco de Crédito
 
 Motor de cálculo de escore de crédito em **Java 21** + **Spring Boot 3.2.2**, estruturado sob os princípios de **Clean Architecture** / **Ports & Adapters** e **Domain-Driven Design (DDD)**. Calcula score de crédito para clientes **Pessoa Física (PF)** e **Pessoa Jurídica (PJ)**, com auditoria persistida e conformidade com as diretrizes do Banco Central do Brasil (Resoluções CMN nº 4.557/2017 e 2.682/1999).
@@ -160,7 +159,7 @@ br.com.scoreengine
 │   ├── security/       # SecurityConfig (JWT/OAuth2)
 │   └── config/          # ScoreConfig (wiring manual de beans)
 └── interfaces/rest/    # controllers, DTOs de request/response, mappers
-=======
+
 # Esteira de Crédito — Score + Decisão
 
 Projeto acadêmico da Esteira de Crédito, com integração entre os módulos **Score** e **Decisão**.
@@ -469,12 +468,12 @@ Depois, consulte:
 
 ```text
 http://localhost:8081/api/v1/decisao/latest
->>>>>>> outro-repo/main
+
 ```
 
 ---
 
-<<<<<<< HEAD
+
 ## Testes
 
 ```bash
@@ -499,7 +498,7 @@ Cobertura principal:
   find src -name "*.java" | xargs -n1 basename | sort | uniq -d
   ```
 - Ao adicionar ou alterar uma coluna em uma entidade JPA, confirme no banco (`\d nome_da_tabela` no `psql`) se a alteração realmente foi aplicada — `ddl-auto: update` não garante isso para colunas existentes (ver seção de configuração acima).
-=======
+
 ## 11. Execução em computadores diferentes
 
 Os serviços também podem ficar em máquinas diferentes.
@@ -665,4 +664,4 @@ A integração entre **Score** e **Decisão** foi estruturada para funcionar por
 A Decisão deixou de depender do preenchimento manual dos dados principais e passou a receber o resultado produzido pelo Score.
 
 O projeto permanece aberto para novas integrações e funcionalidades.
->>>>>>> outro-repo/main
+
