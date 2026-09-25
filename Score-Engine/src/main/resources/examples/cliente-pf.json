@@ -1,0 +1,12 @@
+{
+    "clienteId": "CLI-PF-001",
+    "tipoPessoa": "PF",
+    "rendaMensalLiquida": 8500.00,
+    "quantidadeAtrasos": 1,
+    "endividamento": 0.25,
+    "tempoRelacionamentoMeses": 48,
+    "idade": 34,
+    "estadoCivil": "CASADO",
+    "tempoUltimoEmpregoMeses": 36,
+    "possuiAvalista": false
+}

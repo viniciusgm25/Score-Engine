@@ -1,0 +1,15 @@
+{
+  "name": "esteira-credito-decisao",
+  "version": "2.0.0",
+  "description": "Microsserviço de decisão que recebe o resultado do Score Engine por HTTP POST",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest"
+  },
+  "keywords": ["credito", "decisao", "microsservico", "score"],
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

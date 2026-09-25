@@ -1,0 +1,90 @@
+openapi: 3.0.3
+
+info:
+  title: Decisão API
+  description: API responsável por receber o resultado do Score e processar a decisão de crédito.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8081
+
+paths:
+
+  /api/v1/decisao:
+    post:
+      summary: Processa uma decisão
+      description: Recebe o resultado calculado pelo Score e processa a decisão de crédito.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - clienteId
+                - tipoPessoa
+                - scoreFinal
+                - faixaRisco
+                - probabilidadeDefault
+              properties:
+                clienteId:
+                  type: string
+                  example: "12345678901"
+                tipoPessoa:
+                  type: string
+                  example: "PF"
+                scoreFinal:
+                  type: integer
+                  example: 872
+                faixaRisco:
+                  type: string
+                  example: "EXCELENTE"
+                probabilidadeDefault:
+                  type: number
+                  format: double
+                  example: 0.0128
+                modelo:
+                  type: object
+                  properties:
+                    codigo:
+                      type: string
+                      example: "SCORE_PF"
+                    versao:
+                      type: string
+                      example: "v1.1.0"
+                calculatedAt:
+                  type: string
+                  format: date-time
+                origem:
+                  type: string
+                  example: "CALCULO"
+                componentes:
+                  type: array
+                  items:
+                    type: object
+                fatoresImpacto:
+                  type: array
+                  items:
+                    type: string
+
+      responses:
+        "200":
+          description: Decisão processada com sucesso
+        "400":
+          description: Requisição inválida
+
+  /api/v1/decisao/latest:
+    get:
+      summary: Consulta a última decisão
+      description: Retorna o último resultado de decisão processado pelo serviço.
+      responses:
+        "200":
+          description: Última decisão retornada com sucesso
+
+  /api/v1/decisao/health:
+    get:
+      summary: Verifica a saúde da aplicação
+      description: Verifica se o serviço de Decisão está disponível.
+      responses:
+        "200":
+          description: Serviço disponível

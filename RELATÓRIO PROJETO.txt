@@ -1,0 +1,224 @@
+RELATÓRIO DE EVOLUÇÃO DO PROJETO — ESTEIRA DE CRÉDITO
+Módulo 9 — Decisão
+Integração com o módulo 10 — Score
+
+== CONTEXTO INICIAL ==
+
+O projeto faz parte de uma Esteira de Crédito desenvolvida em grupo, dividida em diferentes módulos. O nosso grupo ficou responsável pelo módulo 9 — Decisão, cujo objetivo é receber os resultados das etapas anteriores e produzir uma decisão de crédito, além de manter informações necessárias para auditoria.
+
+No início do desenvolvimento, o projeto de Decisão foi estruturado de maneira mais manual.
+A interface possuía caixas de texto e outros campos para que nós mesmos preenchêssemos informações do cliente. A partir desses dados, o sistema poderia processar as informações e gerar o resultado utilizado na auditoria.
+
+Essa abordagem serviu como uma primeira versão/protótipo para demonstrar a ideia do módulo, mas posteriormente foi revista com a integração com o módulo de Score.
+
+Na primeira concepção do projeto, a interface do módulo de Decisão funcionava como uma entrada manual de informações.
+
+A ideia era:
+- a equipe preencher os dados nas caixas de texto;
+- o sistema receber essas informações;
+- realizar o processamento relacionado à decisão/auditoria;
+- apresentar o resultado.
+
+Essa estrutura facilitava os testes isolados do módulo, mas posteriormente foi considerada inadequada para o fluxo integrado da Esteira de Crédito.
+
+== ALTERAÇÃO DA RESPONSABILIDADE DO MÓDULO DE DECISÃO ==
+
+Com a definição da integração entre os módulos, a responsabilidade do projeto de Decisão foi reformulada.
+
+A principal mudança foi retirar a necessidade de preenchimento manual das informações que deveriam vir das etapas anteriores.
+
+A nova ideia é:
+
+Score → POST → Decisão → processamento da decisão/auditoria
+
+Dessa forma, o módulo de Decisão não precisa pedir novamente informações que já foram calculadas ou coletadas por outro serviço.
+
+Por exemplo, não faz sentido que uma pessoa precise digitar manualmente um score no módulo de Decisão se o módulo de Score já possui a responsabilidade de calcular esse score e enviá-lo.
+
+Assim, o projeto de Decisão passou de uma abordagem baseada em entrada manual para uma abordagem baseada no recebimento de dados de outro serviço.
+
+== INTEGRAÇÃO COM O PROJETO SCORE == 
+
+Para realizar essa mudança, foi utilizado como referência o projeto de outro grupo responsável pelo Score.
+
+O Score possui a responsabilidade de calcular o resultado relacionado ao risco de crédito. O projeto de Decisão, por sua vez, recebe esse resultado para realizar a etapa seguinte da esteira.
+
+A integração foi estruturada utilizando comunicação HTTP e método POST.
+
+O fluxo definido passou a ser:
+
+1. O Score recebe/processa os dados necessários para sua análise.
+2. O Score calcula o resultado.
+3. O Score envia o resultado por meio de uma requisição HTTP POST.
+4. O módulo de Decisão recebe essa requisição.
+5. O módulo de Decisão processa o resultado recebido.
+6. A Decisão gera o resultado correspondente para a esteira e para a auditoria.
+
+Essa organização mantém uma separação mais clara entre as responsabilidades dos dois projetos:
+
+- Score: calcula e classifica o resultado de risco.
+- Decisão: recebe o resultado e aplica a lógica de decisão/auditoria correspondente.
+
+== ALTERAÇÕES NO APPLICATION.YML DO SCORE ==
+
+Durante a integração, foi necessário alterar o arquivo application.yml do projeto Score.
+
+O objetivo dessas alterações foi permitir os testes de funcionamento do projeto em diferentes cenários, incluindo a comunicação entre os microsserviços e a execução do projeto em uma estrutura mais próxima de um monólito durante os testes.
+
+As configurações foram utilizadas para verificar principalmente:
+- portas utilizadas pelos serviços;
+- endereço do serviço de Decisão;
+- funcionamento dos endpoints;
+- comunicação HTTP entre Score e Decisão;
+- funcionamento do método POST;
+- possibilidade de executar e testar os componentes de maneira integrada.
+
+Essa etapa foi importante porque não bastava apenas criar o endpoint no projeto de Decisão: era necessário verificar se o Score realmente conseguia enviar uma requisição e se a Decisão conseguia recebê-la e processá-la.
+
+== TESTES DE PORTAS E ENDPOINTS == 
+
+Foram realizados testes para validar a comunicação entre os serviços.
+
+A estrutura utilizada passou a considerar os serviços em portas diferentes quando executados como microsserviços no mesmo computador.
+
+A configuração trabalhada foi:
+
+- Score: porta 8080
+- Decisão: porta 8081
+
+Nesse cenário, o Score envia a requisição para o endereço do serviço de Decisão.
+
+Em uma execução no mesmo computador, a comunicação pode utilizar: http://localhost:8081
+
+Quando os serviços estiverem em computadores diferentes, o endereço deverá utilizar o IP da máquina que está executando a Decisão.
+
+Exemplo: Score → http://IP-DA-MAQUINA-DA-DECISAO:8081
+
+Isso ocorre porque o IP utilizado na URL representa o destino da requisição. Como o Score é quem envia e a Decisão é quem recebe, o endereço utilizado pelo Score deve apontar para a máquina da Decisão.
+
+== ENDPOINTS E COMUNICAÇÃO ==
+
+Durante a integração, foi utilizado o endpoint do Score responsável pela avaliação:
+POST /api/v1/score/evaluate
+
+Após o processamento, o resultado do Score é enviado para o serviço de Decisão por HTTP POST.
+
+No projeto de Decisão, foi estruturado o recebimento em:
+POST /api/v1/decisao
+
+Também foram utilizados endpoints auxiliares para verificar o funcionamento do serviço, incluindo:
+GET /api/v1/decisao/health
+GET /api/v1/decisao/latest
+
+O endpoint de health permite verificar se o serviço está disponível, enquanto o endpoint latest permite consultar o último resultado recebido pela Decisão.
+
+== ALTERAÇÃO DA INTERFACE DA DECISÃO ==
+
+Como consequência da nova arquitetura, a interface do projeto de Decisão deixou de ter como objetivo principal o preenchimento manual dos dados. Os campos que antes serviam como entrada manual passaram a não ser necessários para o fluxo principal. A interface agora deve representar principalmente o resultado recebido e processado pelo sistema.
+
+Essa alteração torna a interface mais coerente com a arquitetura da esteira, pois a pessoa não precisa repetir manualmente informações que já foram produzidas por outro módulo.
+
+== CORREÇÃO DO SERVIDOR PARA A INTERFACE WEB ==
+
+Durante os testes, foi identificado um problema no servidor do projeto de Decisão. O servidor conseguia receber as requisições POST e os dados apareciam no terminal, porém os arquivos da interface, como CSS e JavaScript, não estavam sendo servidos corretamente.
+
+O servidor inicialmente tratava a página HTML, mas não disponibilizava corretamente os arquivos estáticos necessários para a interface.
+
+Foi realizada uma alteração no server.js para permitir o atendimento de arquivos como:
+
+- index.html
+- styles.css
+- script.js
+
+Depois dessa alteração, a interface voltou a carregar corretamente, permitindo visualizar no navegador o resultado recebido pelo serviço.
+
+== TESTES DE RECEBIMENTO DO SCORE ==
+
+Depois da correção da interface e da estrutura de comunicação, foram realizados testes enviando resultados de Score diretamente para o endpoint da Decisão.
+Um dos testes utilizou um score propositalmente baixo para verificar se a lógica de decisão estava sendo acionada corretamente. Esse tipo de teste permitiu validar não apenas a comunicação HTTP, mas também o processamento do payload recebido pelo serviço.
+
+== EXECUÇÃO COMO MICROSSERVIÇOS ==
+
+A arquitetura atual permite que Score e Decisão sejam executados como serviços independentes.
+
+Exemplo no mesmo computador:
+
+Score
+http://localhost:8080
+
+Decisão
+http://localhost:8081
+
+Nesse cenário, o Score envia os resultados para a Decisão através da rede local da própria máquina.
+
+Também foi verificado que os serviços podem ser distribuídos entre computadores diferentes.
+
+Exemplo:
+
+Máquina A:
+Decisão — porta 8081
+
+Máquina B:
+Score — porta 8080
+
+Nesse caso, o Score deverá utilizar o IP da Máquina A para enviar os resultados para a Decisão.
+
+== CONFIGURAÇÃO DE BANCO DE DADOS ==
+
+Durante a execução do projeto Score também foi identificado que ele possui configuração de banco de dados PostgreSQL.
+
+O application.yml foi ajustado para permitir que as configurações de conexão possam ser definidas por variáveis de ambiente, mantendo valores padrão para o ambiente local.
+
+A configuração local utiliza PostgreSQL na porta 5432.
+
+É importante diferenciar o banco local da aplicação: localhost representa a própria máquina onde o serviço está sendo executado. Portanto, uma configuração apontando para localhost não significa necessariamente que o banco pertence ao projeto; significa que a aplicação está procurando o banco na própria máquina.
+
+A utilização de Docker não faz parte da solução adotada para a execução local do projeto.
+
+== SITUAÇÃO ATUAL DO PROJETO ==
+
+Até o momento, a evolução principal pode ser resumida da seguinte forma:
+
+VERSÃO INICIAL:
+Decisão
+↓
+A equipe preenche informações manualmente
+↓
+Sistema processa
+↓
+Resultado/auditoria
+
+VERSÃO ATUAL:
+Score
+↓
+HTTP POST
+↓
+Decisão
+↓
+Processamento da decisão
+↓
+Resultado/auditoria
+
+A mudança principal foi, portanto, a transformação da Decisão de um módulo que dependia de entrada manual para um serviço que recebe os resultados produzidos por outro componente da esteira.
+
+== RESPONSABILIDADES ATUAIS ==
+
+Score:
+- receber os dados necessários para a análise;
+- calcular o score;
+- classificar o resultado de risco;
+- produzir as informações necessárias para a próxima etapa;
+- enviar o resultado para a Decisão por POST.
+
+Decisão:
+- receber o resultado do Score;
+- processar as informações recebidas;
+- aplicar a lógica de decisão definida para o projeto;
+- gerar o resultado da decisão;
+- disponibilizar informações para consulta e auditoria.
+
+== OBSERVAÇÃO SOBRE EVOLUÇÃO DO PROJETO ==
+
+Este relatório registra a evolução do projeto até o estado atual. Algumas partes poderão sofrer novas alterações durante o desenvolvimento.
+
+Novas funcionalidades, ajustes de arquitetura, mudanças nos endpoints, alterações de configuração ou novas integrações poderão ser adicionadas posteriormente.

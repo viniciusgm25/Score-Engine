@@ -1,0 +1,12 @@
+{
+    "clienteId": "CLI-PJ-999",
+    "tipoPessoa": "PJ",
+    "faturamentoMensal": 150000.00,
+    "tempoAtividadeMeses": 120,
+    "endividamento": 0.40,
+    "lucroMedioMensal": 25000.00,
+    "liquidez": 1.8,
+    "operacoesCreditoAtivas": 2,
+    "tempoRelacionamentoMeses": 72,
+    "setorAtividade": "TECNOLOGIA"
+}

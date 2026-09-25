@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Esteira de Crédito — Decisão</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <p class="eyebrow">MICROSSERVIÇO 09</p>
+    <h1>Decisão de crédito</h1>
+    <p class="lede">O Score Engine envia o resultado por HTTP POST. Esta etapa recebe o resultado, aplica a política de decisão e apresenta o veredito.</p>
+  </div>
+  <div class="connection" id="connectionStatus">Aguardando Score</div>
+</header>
+
+<main class="layout">
+  <section class="result-panel">
+    <div class="section-title-row">
+      <div>
+        <h2>Resultado recebido</h2>
+        <p class="section-description">Nenhum dado é digitado nesta tela para executar a decisão.</p>
+      </div>
+      <button class="btn-secondary" id="btnAtualizar" type="button">Atualizar</button>
+    </div>
+
+    <div class="verdict-banner vazio" id="veredito">
+      Aguardando um resultado do Score Engine...
+    </div>
+
+    <div class="cards" id="cards" hidden>
+      <article class="info-card">
+        <span class="label">Cliente</span>
+        <strong class="value mono" id="clienteId">—</strong>
+      </article>
+      <article class="info-card destaque">
+        <span class="label">Score final</span>
+        <strong class="value mono" id="scoreFinal">—</strong>
+      </article>
+      <article class="info-card">
+        <span class="label">Faixa de risco</span>
+        <strong class="value" id="faixaRisco">—</strong>
+      </article>
+      <article class="info-card">
+        <span class="label">Probabilidade de default</span>
+        <strong class="value mono" id="pd">—</strong>
+      </article>
+    </div>
+
+    <div class="grid-two" id="metadata" hidden>
+      <section class="panel-block">
+        <h3>Metadados do Score</h3>
+        <dl class="details">
+          <div><dt>Modelo</dt><dd id="modelo">—</dd></div>
+          <div><dt>Versão</dt><dd id="versao">—</dd></div>
+          <div><dt>Origem</dt><dd id="origem">—</dd></div>
+          <div><dt>Calculado em</dt><dd id="calculatedAt">—</dd></div>
+        </dl>
+      </section>
+
+      <section class="panel-block">
+        <h3>Fatores de impacto</h3>
+        <ul class="factors" id="fatoresImpacto"></ul>
+      </section>
+    </div>
+
+    <section class="panel-block" id="componentesPanel" hidden>
+      <h3>Componentes recebidos</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Componente</th>
+              <th>Pontuação</th>
+              <th>Peso</th>
+              <th>Motivo</th>
+            </tr>
+          </thead>
+          <tbody id="componentes"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <details class="json-log" id="jsonLog" hidden>
+      <summary>Ver payload e decisão em JSON</summary>
+      <pre id="jsonLogConteudo"></pre>
+    </details>
+  </section>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>

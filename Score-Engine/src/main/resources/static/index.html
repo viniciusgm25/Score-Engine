@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score Engine — Central Unificada de Risco</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Score Engine — Central Unificada de Risco (PF / PJ)</h2>
+
+        <div class="form-group">
+            <label for="jwtToken">Token Bearer (JWT)</label>
+            <input type="text" id="jwtToken" placeholder="Insira o Bearer Token do Resource Server..." />
+            <div class="hint">Cabeçalho Authorization: Bearer. Protegido por Spring Security.</div>
+        </div>
+
+        <div class="type-selector">
+            <label><input type="radio" name="tipoPessoa" value="PF" checked onchange="toggleProfileForms()"> Pessoa
+                Física (PF)</label>
+            <label><input type="radio" name="tipoPessoa" value="PJ" onchange="toggleProfileForms()"> Pessoa Jurídica
+                (PJ)</label>
+        </div>
+
+        <div class="checkbox-container">
+            <label>
+                <input type="checkbox" id="chkForcarRecalculo" checked>
+                <strong>Forçar novo cálculo</strong> (ignorar histórico idêntico persistido em banco)
+            </label>
+            <div class="hint">Quando desmarcado, o motor reutiliza a última avaliação idêntica realizada dentro de 30
+                dias.</div>
+        </div>
+
+        <form id="scoreForm">
+            <!-- FORMULÁRIO PF -->
+            <div id="pfFields">
+                <div class="row">
+                    <div class="col form-group">
+                        <label for="pfCpf">CPF do Titular</label>
+                        <input type="text" id="pfCpf" value="12345678901" maxlength="11" />
+                        <div class="hint">Identificador exclusivo de 11 dígitos da Pessoa Física.</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pfRenda">Renda Mensal (R$)</label>
+                        <input type="number" id="pfRenda" value="6500.00" step="0.01" />
+                        <div class="hint">Renda líquida para avaliação de margem livre de subsistência.</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pfDivida">Dívida Consolidada (R$)</label>
+                        <input type="number" id="pfDivida" value="1200.00" step="0.01" />
+                        <div class="hint">Passivo total acumulado com compromissos contratuais.</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col form-group">
+                        <label for="pfIdade">Idade (Anos)</label>
+                        <input type="number" id="pfIdade" value="34" />
+                        <div class="hint">Atributo demográfico sem penalização arbitrária.</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pfEstadoCivil">Estado Civil</label>
+                        <select id="pfEstadoCivil">
+                            <option value="SOLTEIRO">Solteiro(a)</option>
+                            <option value="CASADO" selected>Casado(a)</option>
+                            <option value="DIVORCIADO">Divorciado(a)</option>
+                            <option value="VIUVO">Viúvo(a)</option>
+                        </select>
+                        <div class="hint">Contexto orçamentário do proponente.</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pfDependentes">Dependentes</label>
+                        <input type="number" id="pfDependentes" value="1" min="0" />
+                        <div class="hint">Utilizado na dedução de custo de vida (R$ 600/dep).</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pfAtrasos">Atrasos (12m)</label>
+                        <input type="number" id="pfAtrasos" value="0" min="0" />
+                        <div class="hint">Pontualidade no cumprimento de obrigações passadas.</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col form-group">
+                        <label for="pfRotUtil">Rotativo Utilizado (R$)</label>
+                        <input type="number" id="pfRotUtil" value="350.00" step="0.01" />
+                        <div class="hint">Uso de linhas emergenciais de cartão e cheque especial.</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pfRotTotal">Rotativo Total (R$)</label>
+                        <input type="number" id="pfRotTotal" value="4000.00" step="0.01" />
+                        <div class="hint">Teto global concedido de crédito rotativo.</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pfMesesEmp">Meses no Emprego</label>
+                        <input type="number" id="pfMesesEmp" value="28" min="0" />
+                        <div class="hint">Estabilidade da fonte primária pagadora.</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pfMesesBanco">Meses de Relacionamento</label>
+                        <input type="number" id="pfMesesBanco" value="40" min="0" />
+                        <div class="hint">Maturidade do vínculo com a instituição bancária.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORMULÁRIO PJ -->
+            <div id="pjFields" style="display:none;">
+                <div class="row">
+                    <div class="col form-group">
+                        <label for="pjCnpj">CNPJ da Empresa</label>
+                        <input type="text" id="pjCnpj" value="12345678000195" maxlength="14" />
+                        <div class="hint">Cadastro Nacional da Pessoa Jurídica (14 dígitos numéricos).</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pjRazao">Razão Social</label>
+                        <input type="text" id="pjRazao" value="Comércio Exemplo Ltda" />
+                        <div class="hint">Identificação societária registrada perante a Junta Comercial.</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pjSetor">Setor Econômico</label>
+                        <select id="pjSetor">
+                            <option value="COMERCIO">Comércio Varejista</option>
+                            <option value="SERVICOS" selected>Prestação de Serviços</option>
+                            <option value="INDUSTRIA">Indústria e Transformação</option>
+                        </select>
+                        <div class="hint">Setor de atuação para ponderação de resiliência macroeconômica.</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col form-group">
+                        <label for="pjFatMensal">Faturamento Mensal Médio (R$)</label>
+                        <input type="number" id="pjFatMensal" value="850.00" step="0.01" />
+                        <div class="hint">Receita bruta média mensal comprovada.</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pjDespMensal">Despesas Operacionais (R$)</label>
+                        <input type="number" id="pjDespMensal" value="52000.00" step="0.01" />
+                        <div class="hint">Custos fixos e despesas para mensurar o caixa operacional livre.</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col form-group">
+                        <label for="pjPassivo">Passivo Bancário Total (R$)</label>
+                        <input type="number" id="pjPassivo" value="950.00" step="0.01" />
+                        <div class="hint">Endividamento consolidado em empréstimos e financiamentos.</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pjFatAnual">Faturamento Anual (R$)</label>
+                        <input type="number" id="pjFatAnual" value="10200.00" step="0.01" />
+                        <div class="hint">Receita bruta anual para cálculo da taxa de alavancagem.</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pjAtrasos">Dias de Atraso (12m)</label>
+                        <input type="number" id="pjAtrasos" value="10" min="0" />
+                        <div class="hint">Histórico de regularidade operacional em crédito empresarial.</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="pjMesesConst">Meses de Constituição</label>
+                        <input type="number" id="pjMesesConst" value="2" min="0" />
+                        <div class="hint">Maturidade jurídica da empresa (superação do ciclo de mortalidade).</div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="btnSubmeter">Consultar / Calcular Score</button>
+        </form>
+
+        <div class="result-card" id="cardResultado" style="display:none;">
+            <h3>Resultado Consolidado da Esteira</h3>
+            <p>
+                <strong>Cliente:</strong> <span id="outCliente"></span> |
+                <strong>Tipo:</strong> <span id="outTipo"></span> |
+                <strong>Score:</strong> <span id="outScore"></span> |
+                <strong>Faixa de risco:</strong> <span id="outRating"></span> |
+                <strong>PD:</strong> <span id="outPd"></span> |
+                <strong>Origem:</strong> <span id="outOrigem"></span>
+            </p>
+            <p><strong>Modelo:</strong> <span id="outModelo"></span> | <strong>Calculado em:</strong> <span id="outData"></span></p>
+            <p><strong>Integração:</strong> <span id="outDecision">—</span></p>
+            <h4>Componentes Parametrizados</h4>
+            <div id="outComponentes"></div>
+        </div>
+
+        <h3 style="margin-top: 30px;">Trilha de Depuração Técnica (HTTP Trace)</h3>
+        <label>Payload JSON Unificado Transmitido</label>
+        <div class="terminal" id="traceRequest">// Aguardando submissão...</div>
+
+        <label style="margin-top: 15px;">Status da Resposta HTTP</label>
+        <div class="terminal" id="traceStatus">// Sem conexão</div>
+
+        <label style="margin-top: 15px;">Payload JSON Recebido do Motor</label>
+        <div class="terminal" id="traceResponse">// Aguardando resposta...</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
