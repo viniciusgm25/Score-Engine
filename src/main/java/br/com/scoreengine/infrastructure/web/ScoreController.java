@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * Ponto de Entrada REST para a Avaliação de Score de Crédito Corporativo e
  * Varejo.
@@ -30,6 +33,11 @@ import java.util.UUID;
  * resposta
  * em conformidade com as diretrizes prudenciais do Bacen, Basileia e CDC.
  */
+
+@Tag(
+    name = "Score",
+    description = "Operações relacionadas ao cálculo de score de crédito"
+)
 @RestController
 @RequestMapping("/api/v1/score")
 public class ScoreController {
@@ -44,11 +52,20 @@ public class ScoreController {
         this.scoreService = Objects.requireNonNull(scoreService, "O ScoreService não pode ser nulo.");
         this.mapper = Objects.requireNonNull(mapper, "O ClientePerfilMapper não pode ser nulo.");
     }
-
+    
+    @Operation(
+        summary = "Verifica a saúde do serviço",
+        description = "Retorna informações que permitem verificar se o serviço de Score está disponível."
+    )
     @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("Score Engine operacional.");
     }
+
+    @Operation(
+        summary = "Calcula o score de um cliente",
+        description = "Recebe o perfil do cliente e retorna o score calculado, a faixa de risco, a probabilidade de default, os componentes do score e os fatores de impacto."
+    )
 
     @PostMapping
     public ResponseEntity<UnifiedScoreResponseDTO> calcularScore(

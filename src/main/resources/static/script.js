@@ -4,16 +4,29 @@ function toggleProfileForms() {
     document.getElementById('pjFields').style.display = isPF ? 'none' : 'block';
 }
 
+function formatarPD(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? `${(number * 100).toFixed(2)}%` : '—';
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
 document.getElementById('scoreForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const tipoPessoa = document.querySelector('input[name="tipoPessoa"]:checked').value;
     const forcarRecalculo = document.getElementById('chkForcarRecalculo').checked;
 
-    // A flag forcarRecalculo é injetada na raiz do JSON para o UnifiedScoreRequestDTO
     const payload = {
-        tipoPessoa: tipoPessoa,
-        forcarRecalculo: forcarRecalculo
+        tipoPessoa,
+        forcarRecalculo
     };
 
     if (tipoPessoa === 'PF') {
@@ -46,7 +59,7 @@ document.getElementById('scoreForm').addEventListener('submit', async function (
 
     const jsonStr = JSON.stringify(payload, null, 2);
     document.getElementById('traceRequest').textContent = jsonStr;
-    document.getElementById('traceStatus').textContent = "Transmitindo POST /api/v1/score/evaluate...";
+    document.getElementById('traceStatus').textContent = 'Calculando Score e enviando resultado para a Decisão...';
 
     const headers = { 'Content-Type': 'application/json' };
     const token = document.getElementById('jwtToken').value.trim();
@@ -55,63 +68,50 @@ document.getElementById('scoreForm').addEventListener('submit', async function (
     try {
         const response = await fetch('/api/v1/score/evaluate', {
             method: 'POST',
-            headers: headers,
+            headers,
             body: jsonStr
         });
 
-        document.getElementById('traceStatus').textContent = `Status: ${response.status} ${response.statusText}`;
         const data = await response.json();
+        document.getElementById('traceStatus').textContent = `Status: ${response.status} ${response.statusText}`;
         document.getElementById('traceResponse').textContent = JSON.stringify(data, null, 2);
 
-        if (response.ok) {
-            document.getElementById('cardResultado').style.display = 'block';
-
-            // Campos alinhados ao UnifiedScoreResponseDTO real:
-            // clienteId, tipoPessoa, scoreFinal, faixaRisco, probabilidadeDefault,
-            // modelo{codigo,versao}, calculatedAt, origem, componentes[], fatoresImpacto[]
-            document.getElementById('outCliente').textContent = data.clienteId;
-            document.getElementById('outTipo').textContent = data.tipoPessoa;
-            document.getElementById('outScore').textContent = data.scoreFinal;
-            document.getElementById('outRating').textContent = data.faixaRisco;
-
-            const elemOrigem = document.getElementById('outOrigem');
-            elemOrigem.textContent = data.origem;
-            elemOrigem.className = `badge-origem origem-${data.origem}`;
-
-            document.getElementById('outModelo').textContent = `${data.modelo.codigo} (${data.modelo.versao})`;
-            document.getElementById('outData').textContent = new Date(data.calculatedAt).toLocaleString();
-
-            const compContainer = document.getElementById('outComponentes');
-            compContainer.innerHTML = '';
-            if (data.componentes) {
-                data.componentes.forEach(c => {
-                    // O DTO não traz um campo de "impacto" por componente,
-                    // então a classe/rótulo de impacto foi removida daqui.
-                    const item = document.createElement('div');
-                    item.className = 'component-item';
-                    item.innerHTML = `<strong>${c.nome}</strong>: ${c.pontuacao} / ${c.pontuacaoMaxima} pts (Peso: ${c.pesoPonderado})<br/><span class="hint">${c.motivo}</span>`;
-                    compContainer.appendChild(item);
-                });
-            }
-
-            if (data.fatoresImpacto && data.fatoresImpacto.length) {
-                const fatoresTitle = document.createElement('h4');
-                fatoresTitle.textContent = 'Fatores de Impacto';
-                compContainer.appendChild(fatoresTitle);
-
-                const fatoresList = document.createElement('ul');
-                data.fatoresImpacto.forEach(f => {
-                    const li = document.createElement('li');
-                    li.textContent = f;
-                    fatoresList.appendChild(li);
-                });
-                compContainer.appendChild(fatoresList);
-            }
-        } else {
+        if (!response.ok) {
             document.getElementById('cardResultado').style.display = 'none';
+            return;
         }
+
+        document.getElementById('cardResultado').style.display = 'block';
+        document.getElementById('outCliente').textContent = data.clienteId ?? '—';
+        document.getElementById('outTipo').textContent = data.tipoPessoa ?? '—';
+        document.getElementById('outScore').textContent = data.scoreFinal ?? '—';
+        document.getElementById('outRating').textContent = data.faixaRisco ?? '—';
+        document.getElementById('outPd').textContent = formatarPD(data.probabilidadeDefault);
+        document.getElementById('outOrigem').textContent = data.origem ?? '—';
+        document.getElementById('outModelo').textContent = data.modelo
+            ? `${data.modelo.codigo} (${data.modelo.versao})`
+            : '—';
+        document.getElementById('outData').textContent = data.calculatedAt
+            ? new Date(data.calculatedAt).toLocaleString('pt-BR')
+            : '—';
+
+        const componentes = Array.isArray(data.componentes) ? data.componentes : [];
+        const compContainer = document.getElementById('outComponentes');
+        compContainer.innerHTML = componentes.length
+            ? componentes.map(c => `
+                <div class="component-item">
+                    <strong>${escapeHtml(c.nome)}</strong>: ${escapeHtml(c.pontuacao)} / ${escapeHtml(c.pontuacaoMaxima)}
+                    (Peso: ${escapeHtml(Number(c.pesoPonderado ?? 0) * 100)}%)<br/>
+                    <span class="hint">${escapeHtml(c.motivo)}</span>
+                </div>
+              `).join('')
+            : '<div class="component-item">Nenhum componente informado.</div>';
+
+        document.getElementById('outDecision').textContent =
+            'Resultado enviado automaticamente para o microsserviço de Decisão.';
     } catch (err) {
-        document.getElementById('traceStatus').textContent = "Falha de rede ou timeout de comunicação.";
+        document.getElementById('traceStatus').textContent = 'Falha de comunicação com o Score Engine ou com a Decisão.';
         document.getElementById('traceResponse').textContent = String(err);
+        document.getElementById('cardResultado').style.display = 'none';
     }
 });
