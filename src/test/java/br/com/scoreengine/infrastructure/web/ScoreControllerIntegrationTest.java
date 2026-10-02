@@ -25,7 +25,7 @@ class ScoreControllerIntegrationTest {
         String payloadValido = """
                 {
                     "tipoPessoa": "PF",
-                    "clienteId": "CLI-999",
+                    "clienteId": "12345678901",
                     "rendaMensalLiquida": 8500.00,
                     "quantidadeAtrasos": 0,
                     "endividamento": 0.20,
@@ -49,7 +49,7 @@ class ScoreControllerIntegrationTest {
         String payloadValido = """
                 {
                     "tipoPessoa": "PF",
-                    "clienteId": "CLI-999",
+                    "clienteId": "12345678901",
                     "rendaMensalLiquida": 8500.00,
                     "quantidadeAtrasos": 0,
                     "endividamento": 0.20,
