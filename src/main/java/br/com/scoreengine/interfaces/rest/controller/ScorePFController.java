@@ -9,6 +9,13 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(
+    name = "Score PF",
+    description = "Operações de cálculo e avaliação de score para pessoa física"
+)
 @RestController
 @RequestMapping("/api/v1/score/pf")
 public class ScorePFController {
@@ -20,7 +27,10 @@ public class ScorePFController {
         this.calculatePFScoreUseCase = calculatePFScoreUseCase;
         this.mapper = mapper;
     }
-
+    @Operation(
+        summary = "Calcula score de pessoa física",
+        description = "Processa uma avaliação de score específica para clientes pessoa física."
+    )
     @PostMapping
     public ResponseEntity<ScoreResponseDTO> calculate(@Valid @RequestBody ScorePFRequestDTO requestDTO) {
         ScoreResult result = calculatePFScoreUseCase.execute(mapper.toDomain(requestDTO));

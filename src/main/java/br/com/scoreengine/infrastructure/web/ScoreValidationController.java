@@ -6,6 +6,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(
+    name = "Score Validation",
+    description = "Operações de validação e métricas do Score"
+)
+
 @RestController
 @RequestMapping("/api/v1/score/validation")
 public class ScoreValidationController {
@@ -15,7 +23,10 @@ public class ScoreValidationController {
     public ScoreValidationController(ScoreValidationService validationService) {
         this.validationService = validationService;
     }
-
+    @Operation(
+        summary = "Executa métricas de validação",
+        description = "Executa as métricas disponíveis para validação do modelo de Score."
+    )
     @PostMapping("/metrics")
     public ResponseEntity<ScoreValidationService.ValidationResult> avaliarPoderDiscriminatorio(
             @RequestBody ValidationRequest request) {

@@ -1,4 +1,3 @@
-
 # Compiled class file
 *.class
 
@@ -42,6 +41,3 @@ buildNumber.properties
 .project
 .classpath
 .settings/
-
-.vscode
-

@@ -47,12 +47,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Mensageria Assíncrona: Apache Kafka -->
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
-        </dependency>
-
         <!-- Persistência e Auditoria: JPA & PostgreSQL -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -77,6 +71,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- SPRINGDOC API PARA O SWAGGER -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.3.0</version>
         </dependency>
     </dependencies>
 
