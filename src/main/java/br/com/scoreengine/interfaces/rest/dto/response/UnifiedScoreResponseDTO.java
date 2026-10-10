@@ -5,6 +5,7 @@ import br.com.scoreengine.domain.model.common.ScoreOrigin;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,7 +25,25 @@ public record UnifiedScoreResponseDTO(
                 Instant calculatedAt,
                 ScoreOrigin origem,
                 List<ScoreComponentResponseDTO> componentes,
-                List<String> fatoresImpacto) {
+                List<String> fatoresImpacto,
+                // ---- CAMPOS PROVISÓRIOS (vêm do Financiamento; Score só repassa) ----
+                String identificador,
+                BigDecimal valor,
+                String modalidade,
+                Integer prazoMeses,
+                LocalDate dataLiberacao,
+                Boolean primeiroRelacionamento) {
+
+        /** Construtor antigo (sem os campos provisórios) para não quebrar código existente. */
+        public UnifiedScoreResponseDTO(String clienteId, CustomerType tipoPessoa, int scoreFinal,
+                        String faixaRisco, BigDecimal probabilidadeDefault, ModelInfoDTO modelo,
+                        Instant calculatedAt, ScoreOrigin origem,
+                        List<ScoreComponentResponseDTO> componentes, List<String> fatoresImpacto) {
+                this(clienteId, tipoPessoa, scoreFinal, faixaRisco, probabilidadeDefault, modelo,
+                                calculatedAt, origem, componentes, fatoresImpacto,
+                                null, null, null, null, null, null);
+        }
+
         public UnifiedScoreResponseDTO {
                 Objects.requireNonNull(clienteId, "O identificador do cliente não pode ser nulo.");
                 Objects.requireNonNull(tipoPessoa, "O tipo de pessoa (PF/PJ) não pode ser nulo.");

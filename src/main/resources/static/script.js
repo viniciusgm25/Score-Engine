@@ -18,6 +18,10 @@ function escapeHtml(value) {
         .replaceAll("'", '&#039;');
 }
 
+// Data de liberação começa com a data de hoje (pode ser alterada)
+const _dl = document.getElementById('solDataLiberacao');
+if (_dl && !_dl.value) _dl.value = new Date().toISOString().slice(0, 10);
+
 document.getElementById('scoreForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -56,6 +60,17 @@ document.getElementById('scoreForm').addEventListener('submit', async function (
             setorAtuacao: document.getElementById('pjSetor').value
         };
     }
+
+    // Dados da solicitação (provisório). Campo vazio vira null.
+    const txt = id => document.getElementById(id).value.trim() || null;
+    const num = id => { const v = document.getElementById(id).value; return v === '' ? null : parseFloat(v); };
+    const primeiro = document.getElementById('solPrimeiro').value;
+    payload.identificador = txt('solIdentificador');
+    payload.valor = num('solValor');
+    payload.modalidade = txt('solModalidade');
+    payload.prazoMeses = num('solPrazo');
+    payload.dataLiberacao = txt('solDataLiberacao');
+    payload.primeiroRelacionamento = primeiro === '' ? null : primeiro === 'true';
 
     const jsonStr = JSON.stringify(payload, null, 2);
     document.getElementById('traceRequest').textContent = jsonStr;

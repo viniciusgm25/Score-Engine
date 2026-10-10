@@ -71,7 +71,7 @@ public class ScorePipelineController {
                     request.forcarRecalculo());
         }
 
-        UnifiedScoreResponseDTO response = unifiedMapper.toUnifiedResponse(output);
+        UnifiedScoreResponseDTO response = unifiedMapper.toUnifiedResponse(output, request);
 
         // O Score calcula. A Decisão recebe esse resultado e decide.
         scoreToDecisionPort.enviar(response);

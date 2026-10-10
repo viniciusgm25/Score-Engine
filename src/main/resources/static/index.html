@@ -165,6 +165,52 @@
                 </div>
             </div>
 
+            <!-- DADOS DA SOLICITAÇÃO (PROVISÓRIO - pertence ao grupo de Financiamento) -->
+            <fieldset id="solicitacaoFields" style="margin-top:20px;">
+                <legend><strong>Dados da solicitação (provisório — Financiamento)</strong></legend>
+                <div class="hint">Campos simulados para testar a Decisão. Todos obrigatórios nesta tela; o Score só repassa.</div>
+                <div class="row">
+                    <div class="col form-group">
+                        <label for="solIdentificador">Identificador da operação</label>
+                        <input type="text" id="solIdentificador" value="OP-2026-000123" required />
+                    </div>
+                    <div class="col form-group">
+                        <label for="solValor">Valor solicitado (R$)</label>
+                        <input type="number" id="solValor" value="10000.00" step="0.01" min="0.01" required />
+                    </div>
+                    <div class="col form-group">
+                        <label for="solModalidade">Modalidade</label>
+                        <select id="solModalidade" required>
+                            <option value="">(vazio)</option>
+                            <option value="CONSIGNADO_INSS">CONSIGNADO_INSS</option>
+                            <option value="CONSIGNADO_PRIVADO">CONSIGNADO_PRIVADO</option>
+                            <option value="CONSIGNADO_PUBLICO">CONSIGNADO_PUBLICO</option>
+                            <option value="CREDITO_PESSOAL" selected>CREDITO_PESSOAL</option>
+                            <option value="OUTROS_BENS">OUTROS_BENS</option>
+                            <option value="VEICULOS">VEICULOS</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col form-group">
+                        <label for="solPrazo">Prazo (meses)</label>
+                        <input type="number" id="solPrazo" value="24" min="1" step="1" required />
+                    </div>
+                    <div class="col form-group">
+                        <label for="solDataLiberacao">Data de liberação</label>
+                        <input type="date" id="solDataLiberacao" required />
+                    </div>
+                    <div class="col form-group">
+                        <label for="solPrimeiro">Primeiro relacionamento?</label>
+                        <select id="solPrimeiro" required>
+                            <option value="">(vazio)</option>
+                            <option value="true">Sim</option>
+                            <option value="false" selected>Não</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+
             <button type="submit" id="btnSubmeter">Consultar / Calcular Score</button>
         </form>
 

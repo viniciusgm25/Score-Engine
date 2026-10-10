@@ -4,6 +4,7 @@ import br.com.scoreengine.application.dto.UnifiedScoreOutput;
 import br.com.scoreengine.domain.model.common.ScoreResult;
 import br.com.scoreengine.domain.model.pj.CustomerPJProfile;
 import br.com.scoreengine.interfaces.rest.dto.request.ScorePJRequestDTO;
+import br.com.scoreengine.interfaces.rest.dto.request.UnifiedScoreRequestDTO;
 import br.com.scoreengine.interfaces.rest.dto.response.ModelInfoDTO;
 import br.com.scoreengine.interfaces.rest.dto.response.ScoreComponentResponseDTO;
 import br.com.scoreengine.interfaces.rest.dto.response.UnifiedScoreResponseDTO;
@@ -43,7 +44,13 @@ public class UnifiedScoreDtoMapper {
         return profile;
     }
 
+    /** Versão sem dados da solicitação (campos provisórios ficam null). */
     public UnifiedScoreResponseDTO toUnifiedResponse(UnifiedScoreOutput output) {
+        return toUnifiedResponse(output, null);
+    }
+
+    /** Versão que repassa os campos provisórios da solicitação (request) para a resposta. */
+    public UnifiedScoreResponseDTO toUnifiedResponse(UnifiedScoreOutput output, UnifiedScoreRequestDTO request) {
         Objects.requireNonNull(output, "O objeto UnifiedScoreOutput não pode ser nulo.");
         ScoreResult res = Objects.requireNonNull(output.scoreResult(), "O ScoreResult consolidado não pode ser nulo.");
 
@@ -68,6 +75,12 @@ public class UnifiedScoreDtoMapper {
                 res.calculatedAt(),
                 output.origem(),
                 componentesDTO,
-                res.fatoresImpacto());
+                res.fatoresImpacto(),
+                request != null ? request.identificador() : null,
+                request != null ? request.valor() : null,
+                request != null ? request.modalidade() : null,
+                request != null ? request.prazoMeses() : null,
+                request != null ? request.dataLiberacao() : null,
+                request != null ? request.primeiroRelacionamento() : null);
     }
 }
