@@ -35,3 +35,8 @@ app:
   security:
     jwt:
       enabled: ${JWT_ENABLED:false}
+  cors:
+    # Sites (origens) extras que podem chamar o Score pelo navegador, separados por vírgula.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://credcasa-esteira-credito-1.onrender.com}
+    # Libera localhost e IPs de rede local (192.168.x.x, 10.x.x.x, 172.16-31.x.x) em qualquer porta.
+    allow-local-network: ${CORS_ALLOW_LOCAL_NETWORK:true}
