@@ -13,11 +13,15 @@ aceita e repassa à Decisão estes campos (todos opcionais, o Score NÃO os usa 
 | prazoMeses | inteiro | 24 |
 | dataLiberacao | data (AAAA-MM-DD) | "2026-11-01" |
 | primeiroRelacionamento | true/false | false |
+| amortizacao | texto (`PRICE` ou `SAC`) | "SAC" |
 
 Modalidades aceitas: `CONSIGNADO_INSS`, `CONSIGNADO_PRIVADO`, `CONSIGNADO_PUBLICO`,
 `CREDITO_PESSOAL`, `OUTROS_BENS`, `VEICULOS` (outro valor retorna erro 400; `null` é aceito pela API).
 
 Na tela, todos os campos da solicitação são obrigatórios (não envia vazio).
+
+O campo `amortizacao` é opcional na API (`null` é aceito; outro valor além de `PRICE`/`SAC` retorna 400).
+O Score apenas o repassa no corpo enviado à Decisão; a Decisão só encaminha ao Juros os campos que ela mapeia.
 
 Fluxo: tela (Score) -> `POST /api/v1/score/evaluate` -> resposta/`POST` para a Decisão
 com esses 6 campos junto do score.

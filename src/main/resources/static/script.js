@@ -71,6 +71,7 @@ document.getElementById('scoreForm').addEventListener('submit', async function (
     payload.prazoMeses = num('solPrazo');
     payload.dataLiberacao = txt('solDataLiberacao');
     payload.primeiroRelacionamento = primeiro === '' ? null : primeiro === 'true';
+    payload.amortizacao = txt('solAmortizacao');
 
     const jsonStr = JSON.stringify(payload, null, 2);
     document.getElementById('traceRequest').textContent = jsonStr;

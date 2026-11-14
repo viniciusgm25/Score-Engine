@@ -26,5 +26,6 @@ public record UnifiedScoreRequestDTO(
                 @Pattern(regexp = "CONSIGNADO_INSS|CONSIGNADO_PRIVADO|CONSIGNADO_PUBLICO|CREDITO_PESSOAL|OUTROS_BENS|VEICULOS", message = "Modalidade inválida. Use: CONSIGNADO_INSS, CONSIGNADO_PRIVADO, CONSIGNADO_PUBLICO, CREDITO_PESSOAL, OUTROS_BENS ou VEICULOS.") @JsonProperty("modalidade") String modalidade,
                 @JsonProperty("prazoMeses") Integer prazoMeses,
                 @JsonProperty("dataLiberacao") LocalDate dataLiberacao,
-                @JsonProperty("primeiroRelacionamento") Boolean primeiroRelacionamento) {
+                @JsonProperty("primeiroRelacionamento") Boolean primeiroRelacionamento,
+                @Pattern(regexp = "PRICE|SAC", message = "Amortização inválida. Use: PRICE ou SAC.") @JsonProperty("amortizacao") String amortizacao) {
 }

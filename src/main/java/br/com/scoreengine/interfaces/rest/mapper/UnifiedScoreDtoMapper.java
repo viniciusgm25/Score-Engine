@@ -81,6 +81,7 @@ public class UnifiedScoreDtoMapper {
                 request != null ? request.modalidade() : null,
                 request != null ? request.prazoMeses() : null,
                 request != null ? request.dataLiberacao() : null,
-                request != null ? request.primeiroRelacionamento() : null);
+                request != null ? request.primeiroRelacionamento() : null,
+                request != null ? request.amortizacao() : null);
     }
 }

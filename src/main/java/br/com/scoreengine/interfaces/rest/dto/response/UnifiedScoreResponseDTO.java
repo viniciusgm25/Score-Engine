@@ -32,7 +32,8 @@ public record UnifiedScoreResponseDTO(
                 String modalidade,
                 Integer prazoMeses,
                 LocalDate dataLiberacao,
-                Boolean primeiroRelacionamento) {
+                Boolean primeiroRelacionamento,
+                String amortizacao) {
 
         /** Construtor antigo (sem os campos provisórios) para não quebrar código existente. */
         public UnifiedScoreResponseDTO(String clienteId, CustomerType tipoPessoa, int scoreFinal,
@@ -41,7 +42,7 @@ public record UnifiedScoreResponseDTO(
                         List<ScoreComponentResponseDTO> componentes, List<String> fatoresImpacto) {
                 this(clienteId, tipoPessoa, scoreFinal, faixaRisco, probabilidadeDefault, modelo,
                                 calculatedAt, origem, componentes, fatoresImpacto,
-                                null, null, null, null, null, null);
+                                null, null, null, null, null, null, null);
         }
 
         public UnifiedScoreResponseDTO {
