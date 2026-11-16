@@ -41,6 +41,3 @@ buildNumber.properties
 .project
 .classpath
 .settings/
-
-# Variáveis de ambiente (segredos)
-.env

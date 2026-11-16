@@ -78,22 +78,7 @@ DECISION_URL
 DECISION_ENABLED
 JWT_ENABLED
 JWT_ISSUER_URI
-CORS_ALLOWED_ORIGINS
-CORS_ALLOW_LOCAL_NETWORK
 ```
-
-## Arquivo .env
-
-Os valores dessas variáveis ficam no arquivo `.env`, que não é versionado (está no `.gitignore`). O repositório traz apenas o `.env.exemplo`, com os campos para preencher.
-
-Para criar o seu `.env`:
-
-```bash
-cp .env.exemplo .env
-```
-
-Depois preencha os valores no `.env`, principalmente `DB_USERNAME` e `DB_PASSWORD`.
-
 
 Sem variáveis adicionais, o ambiente local utiliza PostgreSQL em `localhost:5432`, banco `score_engine_db`, usuário `postgres` e senha `root`, mantendo compatibilidade com a configuração existente. Em outro computador, os valores podem ser alterados sem modificar o código-fonte.
 
