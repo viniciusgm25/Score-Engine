@@ -27,6 +27,7 @@ public class ScorePFController {
         this.calculatePFScoreUseCase = calculatePFScoreUseCase;
         this.mapper = mapper;
     }
+
     @Operation(
         summary = "Calcula score de pessoa física",
         description = "Processa uma avaliação de score específica para clientes pessoa física."

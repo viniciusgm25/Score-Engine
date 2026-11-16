@@ -1,4 +1,4 @@
-package br.com.scoreengine.infrastructure.persistence.mapper;
+package br.com.scoreengine.infrastructure.persistence.adapter;
 
 import br.com.scoreengine.application.port.out.ScoreAuditPort;
 import br.com.scoreengine.domain.model.common.ScoreResult;
@@ -31,10 +31,6 @@ public class AuditRepositoryAdapter implements ScoreAuditPort {
         this.repository = Objects.requireNonNull(repository,
                 "O repositório ScoreAuditJpaRepository não pode ser nulo.");
         this.objectMapper = Objects.requireNonNull(objectMapper, "O ObjectMapper não pode ser nulo.");
-    }
-
-    public AuditRepositoryAdapter(ScoreAuditJpaRepository repository) {
-        this(repository, new ObjectMapper());
     }
 
     @Override

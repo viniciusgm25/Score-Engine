@@ -1,4 +1,4 @@
-package br.com.scoreengine.infrastructure.web;
+package br.com.scoreengine.interfaces.rest.controller;
 
 import br.com.scoreengine.application.service.ScoreValidationService;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     name = "Score Validation",
     description = "Operações de validação e métricas do Score"
 )
-
 @RestController
 @RequestMapping("/api/v1/score/validation")
 public class ScoreValidationController {
@@ -23,6 +22,7 @@ public class ScoreValidationController {
     public ScoreValidationController(ScoreValidationService validationService) {
         this.validationService = validationService;
     }
+
     @Operation(
         summary = "Executa métricas de validação",
         description = "Executa as métricas disponíveis para validação do modelo de Score."

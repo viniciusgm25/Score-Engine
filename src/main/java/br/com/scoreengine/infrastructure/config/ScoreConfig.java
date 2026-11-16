@@ -5,7 +5,7 @@ import br.com.scoreengine.application.port.out.ScoreAuditPort;
 import br.com.scoreengine.application.service.ScoreService;
 import br.com.scoreengine.domain.calculator.ScoreCalculatorStrategy;
 import br.com.scoreengine.domain.validator.PerfilValidator;
-import br.com.scoreengine.infrastructure.persistence.mapper.AuditRepositoryAdapter;
+import br.com.scoreengine.infrastructure.persistence.adapter.AuditRepositoryAdapter;
 import br.com.scoreengine.infrastructure.persistence.repository.ScoreAuditJpaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;

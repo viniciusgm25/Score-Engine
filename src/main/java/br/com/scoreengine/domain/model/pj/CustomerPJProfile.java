@@ -44,7 +44,6 @@ public class CustomerPJProfile {
         }
     }
 
-    // Getters e Setters...
     public String getCnpj() {
         return cnpj;
     }

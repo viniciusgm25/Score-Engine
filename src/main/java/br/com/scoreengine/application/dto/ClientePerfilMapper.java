@@ -3,18 +3,16 @@ package br.com.scoreengine.application.dto;
 import br.com.scoreengine.domain.exception.ScoreException;
 import br.com.scoreengine.domain.model.pf.CustomerPFProfile;
 import br.com.scoreengine.domain.model.pj.CustomerPJProfile;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 /**
  * Isolador Arquitetural e Mapper de Entrada.
- * Converte DTOs externos (REST / Kafka) para os modelos de domínio imutáveis
+ * Registrado como bean em {@code ScoreConfig}.
+ * Converte DTOs externos (REST) para os modelos de domínio imutáveis
  * (CustomerPFProfile e CustomerPJProfile), garantindo sanitização cadastral,
  * precisão decimal monetária e aderência prudencial (Bacen / Basileia / CDC).
  */
-@Component
 public class ClientePerfilMapper {
 
     /**

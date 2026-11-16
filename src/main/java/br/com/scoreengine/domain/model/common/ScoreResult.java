@@ -52,21 +52,6 @@ public record ScoreResult(
                 extrairMotivosDosComponentes(componentes));
     }
 
-    /**
-     * Construtor de conveniência/retrocompatibilidade para scorecards simplificados
-     * e testes unitários.
-     */
-    public ScoreResult(int scoreFinal, String modelVersion) {
-        this(
-                scoreFinal,
-                definirFaixaRiscoPadrao(scoreFinal),
-                calcularPdPadrao(scoreFinal),
-                modelVersion,
-                Instant.now(),
-                List.of(),
-                List.of("Avaliação processada com base no scorecard padrão vigente."));
-    }
-
     public static String definirFaixaRiscoPadrao(int score) {
         if (score >= 701) {
             return "EXCELENTE";

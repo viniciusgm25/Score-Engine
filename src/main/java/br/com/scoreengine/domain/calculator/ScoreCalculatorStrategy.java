@@ -32,11 +32,10 @@ public interface ScoreCalculatorStrategy<T> {
 
     /**
      * Verifica se a estratégia atual é compatível com o perfil informado.
+     * Cada implementação deve aceitar apenas o seu próprio tipo de perfil.
      *
      * @param profile Objeto de perfil a ser verificado
      * @return true se o calculador suporta este tipo de entrada
      */
-    default boolean supports(Object profile) {
-        return profile != null;
-    }
+    boolean supports(Object profile);
 }

@@ -1,6 +1,5 @@
 package br.com.scoreengine.infrastructure.persistence.adapter;
 
-import br.com.scoreengine.domain.model.common.ScoreComponent;
 import br.com.scoreengine.domain.model.common.ScoreResult;
 import br.com.scoreengine.domain.repository.ScoreAuditRepository;
 import br.com.scoreengine.infrastructure.persistence.entity.ScoreAuditTrailEntity;

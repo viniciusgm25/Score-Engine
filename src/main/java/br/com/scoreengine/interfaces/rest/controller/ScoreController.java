@@ -1,4 +1,4 @@
-package br.com.scoreengine.infrastructure.web;
+package br.com.scoreengine.interfaces.rest.controller;
 
 import br.com.scoreengine.application.dto.ClientePerfilDto;
 import br.com.scoreengine.application.dto.ClientePerfilMapper;
@@ -52,7 +52,7 @@ public class ScoreController {
         this.scoreService = Objects.requireNonNull(scoreService, "O ScoreService não pode ser nulo.");
         this.mapper = Objects.requireNonNull(mapper, "O ClientePerfilMapper não pode ser nulo.");
     }
-    
+
     @Operation(
         summary = "Verifica a saúde do serviço",
         description = "Retorna informações que permitem verificar se o serviço de Score está disponível."
@@ -66,7 +66,6 @@ public class ScoreController {
         summary = "Calcula o score de um cliente",
         description = "Recebe o perfil do cliente e retorna o score calculado, a faixa de risco, a probabilidade de default, os componentes do score e os fatores de impacto."
     )
-
     @PostMapping
     public ResponseEntity<UnifiedScoreResponseDTO> calcularScore(
             @RequestHeader(value = CORRELATION_HEADER, required = false) String correlationId,
