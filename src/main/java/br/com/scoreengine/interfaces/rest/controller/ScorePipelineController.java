@@ -19,7 +19,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
     name = "Score Pipeline",
     description = "Pipeline de avaliação de score de crédito"
 )
-
 @RestController
 @RequestMapping("/api/v1/score")
 public class ScorePipelineController {
@@ -44,7 +43,6 @@ public class ScorePipelineController {
      * Calcula o Score e, na sequência, envia o resultado consolidado ao
      * microsserviço de Decisão.
      */
-
     @Operation(
         summary = "Avalia o score de um cliente",
         description = "Recebe os dados do cliente, processa a avaliação de score e retorna o resultado calculado."
@@ -71,7 +69,7 @@ public class ScorePipelineController {
                     request.forcarRecalculo());
         }
 
-        UnifiedScoreResponseDTO response = unifiedMapper.toUnifiedResponse(output);
+        UnifiedScoreResponseDTO response = unifiedMapper.toUnifiedResponse(output, request);
 
         // O Score calcula. A Decisão recebe esse resultado e decide.
         scoreToDecisionPort.enviar(response);

@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 public class SecurityConfig {
@@ -14,8 +15,12 @@ public class SecurityConfig {
     private boolean jwtEnabled;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         http.csrf(csrf -> csrf.disable());
+
+        // CORS: responde ao navegador (inclusive ao OPTIONS "preflight") antes da checagem de autenticação.
+        // Não afeta chamadas entre servidores, como Score -> Decisão.
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource));
 
         if (jwtEnabled) {
             // Produção / Testes (Exige JWT)

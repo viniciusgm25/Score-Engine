@@ -46,7 +46,6 @@ public class CustomerPFProfile {
         }
     }
 
-    // Getters e Setters mantidos...
     public String getCpf() {
         return cpf;
     }

@@ -5,7 +5,6 @@ import br.com.scoreengine.domain.model.pf.CustomerPFProfile;
 import br.com.scoreengine.domain.model.pj.CustomerPJProfile;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 /**
  * Validador de Domínio para Perfis Cadastrais e Financeiros de Risco (PF e PJ).

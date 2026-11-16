@@ -27,6 +27,11 @@ public class PFScoreCalculatorStrategy implements ScoreCalculatorStrategy<Custom
     }
 
     @Override
+    public boolean supports(Object profile) {
+        return profile instanceof CustomerPFProfile;
+    }
+
+    @Override
     public ScoreResult calculate(CustomerPFProfile profile) {
         if (profile == null) {
             throw new IllegalArgumentException("O perfil do cliente PF não pode ser nulo.");

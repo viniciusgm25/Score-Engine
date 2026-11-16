@@ -49,7 +49,7 @@ public class ScoreService {
         @SuppressWarnings("unchecked")
         ScoreCalculatorStrategy<CustomerPFProfile> calculator = (ScoreCalculatorStrategy<CustomerPFProfile>) calculatorStrategies
                 .stream()
-                .filter(c -> "PFScoreCalculator".equalsIgnoreCase(c.getClass().getSimpleName()) || c.supports(profile))
+                .filter(c -> c.supports(profile))
                 .findFirst()
                 .orElseThrow(() -> {
                     log.error("Falha de domínio: Calculador PF não registrado no contexto.");
@@ -82,7 +82,7 @@ public class ScoreService {
         @SuppressWarnings("unchecked")
         ScoreCalculatorStrategy<CustomerPJProfile> calculator = (ScoreCalculatorStrategy<CustomerPJProfile>) calculatorStrategies
                 .stream()
-                .filter(c -> "PJScoreCalculator".equalsIgnoreCase(c.getClass().getSimpleName()) || c.supports(profile))
+                .filter(c -> c.supports(profile))
                 .findFirst()
                 .orElseThrow(() -> {
                     log.error("Falha de domínio: Calculador PJ não registrado no contexto.");

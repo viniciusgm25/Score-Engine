@@ -24,15 +24,12 @@ class ScoreServiceTest {
     private ScoreAuditPort auditPort;
     private ScoreService scoreService;
 
+    @SuppressWarnings("unchecked")
     @BeforeEach
     void setUp() {
         validator = mock(PerfilValidator.class);
         pfCalculator = mock(ScoreCalculatorStrategy.class);
         auditPort = mock(ScoreAuditPort.class);
-        // List.of(pfCalculator) é inferido como List<ScoreCalculatorStrategy<?>> pelo
-        // contexto do construtor (target typing) — é isso que faltava no teste antigo,
-        // que usava o tipo ScoreCalculator (não relacionado a
-        // ScoreCalculatorStrategy<?>).
         scoreService = new ScoreService(validator, List.of(pfCalculator), auditPort);
     }
 
@@ -53,9 +50,7 @@ class ScoreServiceTest {
 
         String correlationId = UUID.randomUUID().toString();
 
-        // supports() precisa retornar true para que o ScoreService encontre essa
-        // estratégia no stream().filter(...); o nome da classe do mock não bate com
-        // "PFScoreCalculator", então supports() é o único caminho de seleção aqui.
+        // O ScoreService seleciona a estratégia pelo supports().
         when(pfCalculator.supports(perfil)).thenReturn(true);
 
         ScoreResult mockResultado = new ScoreResult(750, "v1.1.0", List.of());

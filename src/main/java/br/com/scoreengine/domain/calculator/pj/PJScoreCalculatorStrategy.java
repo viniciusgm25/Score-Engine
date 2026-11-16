@@ -29,6 +29,11 @@ public class PJScoreCalculatorStrategy implements ScoreCalculatorStrategy<Custom
     }
 
     @Override
+    public boolean supports(Object profile) {
+        return profile instanceof CustomerPJProfile;
+    }
+
+    @Override
     public ScoreResult calculate(CustomerPJProfile profile) {
         if (profile == null) {
             throw new IllegalArgumentException("O perfil do cliente PJ não pode ser nulo.");

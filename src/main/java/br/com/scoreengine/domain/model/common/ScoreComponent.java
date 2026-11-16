@@ -29,12 +29,4 @@ public record ScoreComponent(
             throw new IllegalArgumentException("A pontuação atribuída não pode exceder a pontuação máxima permitida.");
         }
     }
-
-    /**
-     * Construtor de conveniência para manter compatibilidade com chamadas prévias
-     * assumindo peso unitário (1.00) caso não informado.
-     */
-    public ScoreComponent(String nome, BigDecimal pontuacao, BigDecimal pontuacaoMaxima, String motivo) {
-        this(nome, pontuacao, pontuacaoMaxima, BigDecimal.ONE, motivo);
-    }
 }

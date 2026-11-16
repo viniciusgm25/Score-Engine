@@ -24,7 +24,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    // Trazido de infrastructure.web.GlobalExceptionHandler (duplicata removida)
     @ExceptionHandler(ScoreException.class)
     public ResponseEntity<Map<String, Object>> handleScoreException(ScoreException ex) {
         Map<String, Object> body = new HashMap<>();

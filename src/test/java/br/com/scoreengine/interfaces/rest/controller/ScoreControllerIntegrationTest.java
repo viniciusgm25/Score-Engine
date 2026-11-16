@@ -1,4 +1,4 @@
-package br.com.scoreengine.infrastructure.web;
+package br.com.scoreengine.interfaces.rest.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -3,8 +3,6 @@ package br.com.scoreengine.infrastructure.persistence.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Entidade JPA para Trilha de Auditoria do Score de Crédito.
@@ -52,18 +50,7 @@ public class ScoreAuditEntity {
     @Column(name = "tempo_processamento_ms")
     private long tempoProcessamentoMs;
 
-    @OneToMany(mappedBy = "auditEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ScoreComponentAuditEntity> componentes = new ArrayList<>();
-
     public ScoreAuditEntity() {
-    }
-
-    public void addComponente(ScoreComponentAuditEntity componente) {
-        if (componentes == null) {
-            componentes = new ArrayList<>();
-        }
-        componentes.add(componente);
-        componente.setAuditEntity(this);
     }
 
     public Long getId() {
@@ -152,13 +139,5 @@ public class ScoreAuditEntity {
 
     public void setTempoProcessamentoMs(long tempoProcessamentoMs) {
         this.tempoProcessamentoMs = tempoProcessamentoMs;
-    }
-
-    public List<ScoreComponentAuditEntity> getComponentes() {
-        return componentes;
-    }
-
-    public void setComponentes(List<ScoreComponentAuditEntity> componentes) {
-        this.componentes = componentes;
     }
 }
