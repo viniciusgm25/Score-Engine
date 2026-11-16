@@ -131,3 +131,128 @@ document.getElementById('scoreForm').addEventListener('submit', async function (
         document.getElementById('cardResultado').style.display = 'none';
     }
 });
+
+
+// ---- Pedidos recebidos: lista o que chegou ao Score, inclusive de outros sistemas ----
+const ROTULOS_RECEBIDOS = {
+    cpf: 'CPF', cnpj: 'CNPJ', razaoSocial: 'Razão social', rendaMensal: 'Renda mensal', dividaTotal: 'Dívida total',
+    idade: 'Idade', estadoCivil: 'Estado civil', numeroDependentes: 'Dependentes',
+    diasAtrasoUltimos12Meses: 'Dias de atraso (12 meses)', limiteRotativoUtilizado: 'Limite rotativo usado',
+    limiteRotativoTotal: 'Limite rotativo total', mesesNoEmpregoAtual: 'Meses no emprego',
+    mesesRelacionamentoBanco: 'Meses de banco', faturamentoMensal: 'Faturamento mensal',
+    despesasOperacionaisMensais: 'Despesas mensais', passivoTotalBancario: 'Passivo bancário',
+    faturamentoBrutoAnual: 'Faturamento anual', mesesConstituicao: 'Meses de empresa', setorAtuacao: 'Setor',
+    identificador: 'Identificador', valor: 'Valor', modalidade: 'Modalidade', prazoMeses: 'Prazo (meses)',
+    dataLiberacao: 'Data de liberação', primeiroRelacionamento: 'Primeiro relacionamento', amortizacao: 'Amortização'
+};
+const CAMPOS_EM_REAIS = /renda|divida|limite|valor|faturamento|despesas|passivo/i;
+const CAMPOS_SOLICITACAO = ['identificador', 'valor', 'modalidade', 'prazoMeses', 'dataLiberacao', 'primeiroRelacionamento', 'amortizacao'];
+
+const pedidosRecebidos = [];
+const recebidosAbertos = new Set();
+let ultimoRecebido = 0;
+let primeiraConsulta = true;
+
+function valorRecebido(chave, v) {
+    if (v === null || v === undefined || v === '') return '—';
+    if (typeof v === 'boolean') return v ? 'Sim' : 'Não';
+    if (CAMPOS_EM_REAIS.test(chave) && Number.isFinite(Number(v))) {
+        return Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+    if (chave === 'dataLiberacao') return new Date(v + 'T12:00:00').toLocaleDateString('pt-BR');
+    return String(v);
+}
+
+function listaRecebida(obj, chaves) {
+    const itens = (chaves ?? Object.keys(obj ?? {})).filter(k => obj && obj[k] !== undefined);
+    if (!itens.length) return '<p class="hint">Nada informado.</p>';
+    return '<dl>' + itens.map(k =>
+        `<dt>${escapeHtml(ROTULOS_RECEBIDOS[k] ?? k)}</dt><dd>${escapeHtml(valorRecebido(k, obj[k]))}</dd>`
+    ).join('') + '</dl>';
+}
+
+function origemRecebida(origem) {
+    if (!origem) return 'outro serviço (sem navegador)';
+    if (origem === window.location.origin) return 'esta tela';
+    return origem;
+}
+
+function renderizarRecebidos(novosIds) {
+    const lista = document.getElementById('recebidosLista');
+    if (!pedidosRecebidos.length) {
+        lista.innerHTML = '<p class="hint">Nenhum pedido recebido desde que o Score iniciou.</p>';
+        return;
+    }
+    lista.innerHTML = pedidosRecebidos.map(p => {
+        const pedido = p.pedido ?? {};
+        const r = p.resultado ?? {};
+        const perfil = pedido.perfilPF ?? pedido.perfilPJ ?? {};
+        const cliente = perfil.cpf ?? perfil.cnpj ?? r.clienteId ?? '—';
+        const classes = ['recebido', p.erroDecisao ? 'com-erro' : '', novosIds.has(p.id) ? 'novo' : ''].join(' ');
+        const componentes = Array.isArray(r.componentes) ? r.componentes.map(c =>
+            `<dt>${escapeHtml(c.nome)}</dt><dd>${escapeHtml(c.pontuacao)} / ${escapeHtml(c.pontuacaoMaxima)}</dd>`).join('') : '';
+        return `
+            <details class="${classes}" data-id="${p.id}" ${recebidosAbertos.has(p.id) ? 'open' : ''}>
+                <summary>
+                    <strong>Score ${escapeHtml(r.scoreFinal ?? '—')} · ${escapeHtml(r.faixaRisco ?? '—')}</strong>
+                    <span>${escapeHtml(pedido.tipoPessoa ?? '')} ${escapeHtml(cliente)}</span>
+                    <span>${escapeHtml(pedido.identificador ?? '')}</span>
+                    <span>${pedido.valor != null ? escapeHtml(valorRecebido('valor', pedido.valor)) : ''}${pedido.prazoMeses ? ' em ' + escapeHtml(pedido.prazoMeses) + 'x' : ''}</span>
+                    <span class="hint">${new Date(p.recebidoEm).toLocaleTimeString('pt-BR')} · de ${escapeHtml(origemRecebida(p.origem))}</span>
+                </summary>
+                <div class="recebido-corpo">
+                    <div><h4>Dados do cliente</h4>${listaRecebida(perfil)}</div>
+                    <div><h4>Solicitação</h4>${listaRecebida(pedido, CAMPOS_SOLICITACAO)}</div>
+                    <div><h4>Resultado</h4><dl>
+                        <dt>Score</dt><dd>${escapeHtml(r.scoreFinal ?? '—')}</dd>
+                        <dt>Faixa de risco</dt><dd>${escapeHtml(r.faixaRisco ?? '—')}</dd>
+                        <dt>PD</dt><dd>${escapeHtml(formatarPD(r.probabilidadeDefault))}</dd>
+                        <dt>Origem do cálculo</dt><dd>${escapeHtml(r.origem ?? '—')}</dd>
+                        ${componentes}
+                    </dl></div>
+                    ${p.erroDecisao
+                        ? `<p class="recebido-erro">Falha ao enviar para a Decisão: ${escapeHtml(p.erroDecisao)}</p>`
+                        : '<p class="hint recebido-erro" style="color:inherit">Enviado para a Decisão (ou envio desligado na configuração).</p>'}
+                </div>
+            </details>`;
+    }).join('');
+}
+
+document.getElementById('recebidosLista').addEventListener('toggle', (e) => {
+    const id = Number(e.target.dataset?.id);
+    if (!id) return;
+    if (e.target.open) recebidosAbertos.add(id); else recebidosAbertos.delete(id);
+}, true);
+
+async function buscarRecebidos() {
+    const status = document.getElementById('recebidosStatus');
+    const headers = {};
+    const token = document.getElementById('jwtToken').value.trim();
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    try {
+        const response = await fetch('/api/v1/score/recebidos?depoisDe=' + ultimoRecebido, { headers });
+        if (response.status === 401 || response.status === 403) {
+            status.textContent = 'Para listar os pedidos, informe o token JWT acima (ou rode com a segurança desligada no ambiente local).';
+            return;
+        }
+        if (!response.ok) {
+            status.textContent = `Não foi possível listar os pedidos (erro ${response.status}).`;
+            return;
+        }
+        const novos = await response.json();
+        const novosIds = new Set(primeiraConsulta ? [] : novos.map(p => p.id));
+        if (novos.length || primeiraConsulta) {
+            pedidosRecebidos.unshift(...novos);
+            pedidosRecebidos.splice(50);
+            if (novos.length) ultimoRecebido = Math.max(ultimoRecebido, ...novos.map(p => p.id));
+            renderizarRecebidos(novosIds);
+        }
+        primeiraConsulta = false;
+        status.textContent = `${pedidosRecebidos.length} pedido(s). Última consulta às ${new Date().toLocaleTimeString('pt-BR')}.`;
+    } catch (err) {
+        status.textContent = 'Sem resposta do Score. Ele está rodando?';
+    }
+}
+
+buscarRecebidos();
+setInterval(buscarRecebidos, 3000);

@@ -168,3 +168,81 @@ button:hover {
 .impact-NEGATIVO {
     border-left-color: var(--neg);
 }
+/* ---- Pedidos recebidos ---- */
+.recebidos h3 {
+    margin-top: 0;
+}
+
+.recebido {
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.recebido.com-erro {
+    border-left-color: var(--neg);
+}
+
+.recebido.novo {
+    animation: recebido-novo 2s ease-out;
+}
+
+@keyframes recebido-novo {
+    from { background: #e0f2fe; }
+    to { background: white; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .recebido.novo { animation: none; }
+}
+
+.recebido summary {
+    cursor: pointer;
+    padding: 10px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    align-items: baseline;
+}
+
+.recebido summary strong {
+    font-size: 1.05rem;
+}
+
+.recebido-corpo {
+    padding: 0 12px 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.recebido-corpo h4 {
+    margin: 8px 0 4px;
+}
+
+.recebido-corpo dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    gap: 2px 10px;
+    font-size: 0.85rem;
+}
+
+.recebido-corpo dt {
+    color: var(--text-muted);
+}
+
+.recebido-corpo dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.recebido-erro {
+    grid-column: 1 / -1;
+    color: var(--neg);
+    font-size: 0.85rem;
+}

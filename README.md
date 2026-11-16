@@ -86,6 +86,9 @@ Endpoints expostos:
 | GET | `/api/v1/score/health` | `ScoreController` |
 | POST | `/api/v1/score/pf` | `ScorePFController` |
 | POST | `/api/v1/score/validation/metrics` | `ScoreValidationController` |
+| GET | `/api/v1/score/recebidos` | `ScoreRecebidosController` (últimos pedidos recebidos, para a tela) |
+
+**Pedidos recebidos:** a tela mostra, no painel "Pedidos recebidos", tudo o que chega em `POST /api/v1/score/evaluate`, inclusive de outros sistemas (como o AutoGiro): os dados enviados, a solicitação e o resultado. O painel consulta `GET /api/v1/score/recebidos?depoisDe={id}` a cada 3 segundos. A lista guarda os 50 pedidos mais recentes só em memória e é apagada quando o Score reinicia. Com o JWT ligado, o painel usa o mesmo token do campo da tela.
 
 ## Tecnologias
 

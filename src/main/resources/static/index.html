@@ -19,6 +19,13 @@
             <div class="hint">Cabeçalho Authorization: Bearer. Protegido por Spring Security.</div>
         </div>
 
+        <div class="result-card recebidos" id="cardRecebidos">
+            <h3>Pedidos recebidos</h3>
+            <p class="hint">Tudo o que chega ao Score, inclusive de outros sistemas (como o AutoGiro), com os dados enviados e o resultado. Atualiza a cada 3 segundos. A lista fica só na memória do Score e é apagada quando ele reinicia.</p>
+            <p class="hint" id="recebidosStatus">Consultando...</p>
+            <div id="recebidosLista"></div>
+        </div>
+
         <div class="type-selector">
             <label><input type="radio" name="tipoPessoa" value="PF" checked onchange="toggleProfileForms()"> Pessoa
                 Física (PF)</label>

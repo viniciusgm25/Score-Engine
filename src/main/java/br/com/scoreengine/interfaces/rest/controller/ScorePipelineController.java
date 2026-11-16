@@ -8,6 +8,7 @@ import br.com.scoreengine.interfaces.rest.dto.request.UnifiedScoreRequestDTO;
 import br.com.scoreengine.interfaces.rest.dto.response.UnifiedScoreResponseDTO;
 import br.com.scoreengine.interfaces.rest.mapper.ScorePFDtoMapper;
 import br.com.scoreengine.interfaces.rest.mapper.UnifiedScoreDtoMapper;
+import br.com.scoreengine.interfaces.rest.recebidos.PedidosRecebidos;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,16 +28,19 @@ public class ScorePipelineController {
     private final ScorePFDtoMapper pfMapper;
     private final UnifiedScoreDtoMapper unifiedMapper;
     private final ScoreToDecisionPort scoreToDecisionPort;
+    private final PedidosRecebidos recebidos;
 
     public ScorePipelineController(
             EvaluateUnifiedScoreUseCase evaluateUseCase,
             ScorePFDtoMapper pfMapper,
             UnifiedScoreDtoMapper unifiedMapper,
-            ScoreToDecisionPort scoreToDecisionPort) {
+            ScoreToDecisionPort scoreToDecisionPort,
+            PedidosRecebidos recebidos) {
         this.evaluateUseCase = evaluateUseCase;
         this.pfMapper = pfMapper;
         this.unifiedMapper = unifiedMapper;
         this.scoreToDecisionPort = scoreToDecisionPort;
+        this.recebidos = recebidos;
     }
 
     /**
@@ -49,6 +53,7 @@ public class ScorePipelineController {
     )
     @PostMapping("/evaluate")
     public ResponseEntity<UnifiedScoreResponseDTO> evaluate(
+            @RequestHeader(value = "Origin", required = false) String origem,
             @Valid @RequestBody UnifiedScoreRequestDTO request) {
 
         UnifiedScoreOutput output;
@@ -72,7 +77,14 @@ public class ScorePipelineController {
         UnifiedScoreResponseDTO response = unifiedMapper.toUnifiedResponse(output, request);
 
         // O Score calcula. A Decisão recebe esse resultado e decide.
-        scoreToDecisionPort.enviar(response);
+        // O pedido fica registrado para a tela "Pedidos recebidos", com ou sem erro na Decisão.
+        try {
+            scoreToDecisionPort.enviar(response);
+            recebidos.registrar(origem, request, response, null);
+        } catch (RuntimeException ex) {
+            recebidos.registrar(origem, request, response, ex.getMessage());
+            throw ex;
+        }
 
         return ResponseEntity.ok(response);
     }
